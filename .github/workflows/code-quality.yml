@@ -96,13 +96,7 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
 
       - name: Run PHPMD
-        run: |
-          export PHPMD_ALLOW_XDEBUG=1
-          php -d error_reporting="E_ALL & ~E_DEPRECATED & ~E_NOTICE" ./vendor/bin/phpmd app github phpmd.xml 2>/dev/null || {
-            echo "::error::PHPMD found code quality issues"
-            php -d error_reporting="E_ALL & ~E_DEPRECATED & ~E_NOTICE" ./vendor/bin/phpmd app text phpmd.xml
-            exit 1
-          }
+        run: ./vendor/bin/phpmd app github phpmd.xml
         
       - name: PHPMD Status Check
         if: failure()
