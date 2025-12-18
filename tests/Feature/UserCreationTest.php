@@ -1,0 +1,164 @@
+<?php
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+it('can create a user with valid data', function () {
+    $userData = [
+        'name'     => 'João Silva',
+        'email'    => 'joao@example.com',
+        'document' => '43861510014',
+        'password' => 'Password123!',
+    ];
+
+    $response = $this->postJson('/api/v1/users', $userData);
+
+    $response->assertStatus(201)
+            ->assertJson([
+                'success' => true,
+                'message' => 'User created successfully',
+            ])
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'id',
+                    'name',
+                    'email',
+                    'document',
+                    'role',
+                    'created_at',
+                    'updated_at',
+                ],
+            ]);
+
+    $this->assertDatabaseHas('users', [
+        'name'     => $userData['name'],
+        'email'    => $userData['email'],
+        'document' => $userData['document'],
+    ]);
+});
+
+it('fails to create user with invalid cpf', function () {
+    $userData = [
+        'name'     => 'João Silva',
+        'email'    => 'joao@example.com',
+        'document' => '12345678900',
+        'password' => 'Password123!',
+    ];
+
+    $response = $this->postJson('/api/v1/users', $userData);
+
+    $response->assertStatus(422)
+            ->assertJsonValidationErrors(['document']);
+});
+
+it('fails to create user with weak password', function () {
+    $userData = [
+        'name'     => 'João Silva',
+        'email'    => 'joao@example.com',
+        'document' => '12345678901',
+        'password' => '123456',
+    ];
+
+    $response = $this->postJson('/api/v1/users', $userData);
+
+    $response->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+});
+
+it('fails to create user with duplicate email', function () {
+    User::factory()->create(['email' => 'joao@example.com']);
+
+    $userData = [
+        'name'     => 'João Silva',
+        'email'    => 'joao@example.com',
+        'document' => '43861510014',
+        'password' => 'Password123!',
+    ];
+
+    $response = $this->postJson('/api/v1/users', $userData);
+
+    $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email']);
+});
+
+it('fails to create user with duplicate document', function () {
+    User::factory()->create(['document' => '43861510014']);
+
+    $userData = [
+        'name'     => 'Maria Silva',
+        'email'    => 'maria@example.com',
+        'document' => '43861510014',
+        'password' => 'Password123!',
+    ];
+
+    $response = $this->postJson('/api/v1/users', $userData);
+
+    $response->assertStatus(422)
+            ->assertJsonValidationErrors(['document']);
+});
+
+it('fails to create user with invalid email format', function () {
+    $userData = [
+        'name'     => 'João Silva',
+        'email'    => 'invalid-email',
+        'document' => '12345678901',
+        'password' => 'Password123!',
+    ];
+
+    $response = $this->postJson('/api/v1/users', $userData);
+
+    $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email']);
+});
+
+it('fails to create user with missing required fields', function () {
+    $userData = [
+        'name' => 'João Silva',
+    ];
+
+    $response = $this->postJson('/api/v1/users', $userData);
+
+    $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email', 'document', 'password']);
+});
+
+it('can create user with valid cnpj', function () {
+    $userData = [
+        'name'     => 'Empresa LTDA',
+        'email'    => 'empresa@example.com',
+        'document' => '11222333000181', // Valid CNPJ
+        'password' => 'Password123!',
+    ];
+
+    $response = $this->postJson('/api/v1/users', $userData);
+
+    $response->assertStatus(201)
+            ->assertJson([
+                'success' => true,
+                'message' => 'User created successfully',
+            ]);
+
+    $this->assertDatabaseHas('users', [
+        'name'     => 'Empresa LTDA',
+        'email'    => 'empresa@example.com',
+        'document' => '11222333000181',
+    ]);
+});
+
+it('formats document correctly in response', function () {
+    $userData = [
+        'name'     => 'João Silva',
+        'email'    => 'joao@example.com',
+        'document' => '43861510014',
+        'password' => 'Password123!',
+    ];
+
+    $response = $this->postJson('/api/v1/users', $userData);
+
+    $response->assertStatus(201)
+            ->assertJsonPath('data.document', '438.615.100-14');
+});
