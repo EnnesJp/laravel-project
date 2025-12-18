@@ -6,13 +6,13 @@ namespace App\DTOs;
 
 use App\Http\Requests\CreateUserRequest;
 
-readonly class CreateUserDTO
+class CreateUserDTO
 {
     public function __construct(
-        public string $name,
-        public string $email,
-        public string $document,
-        public string $password,
+        public readonly string $name,
+        public readonly string $email,
+        public readonly string $document,
+        public readonly string $password,
     ) {
     }
 
