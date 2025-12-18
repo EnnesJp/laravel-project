@@ -6,7 +6,7 @@ namespace App\Http\Controllers;
 
 use App\DTOs\Auth\LoginDTO;
 use App\Http\Requests\LoginRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\LoginResource;
 use App\Http\Responses\JsonResponse;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse as BaseJsonResponse;
@@ -26,10 +26,10 @@ class AuthController extends Controller
 
             $result = $this->userService->login($dto);
 
-            return JsonResponse::success([
-                'user'  => new UserResource($result['user']),
-                'token' => $result['token'],
-            ], 'Login successful');
+            return JsonResponse::success(
+                new LoginResource($result),
+                'Login successful'
+            );
 
         } catch (ValidationException $e) {
             return JsonResponse::validationError(
