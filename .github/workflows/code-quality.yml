@@ -1,4 +1,4 @@
-name: PHPStan Analysis
+name: Code Quality Analysis
 
 on:
   pull_request:
@@ -11,6 +11,7 @@ on:
       - 'composer.json'
       - 'composer.lock'
       - 'phpstan.neon'
+      - 'phpmd.xml'
   push:
     branches: [ main ]
 
@@ -60,4 +61,51 @@ jobs:
         if: failure()
         run: |
           echo "::error::PHPStan analysis failed. Please fix the errors before merging."
+          exit 1
+
+  phpmd:
+    runs-on: ubuntu-latest
+    name: PHPMD Analysis
+    
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+          coverage: none
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+
+      - name: Run PHPMD
+        run: |
+          export PHPMD_ALLOW_XDEBUG=1
+          php -d error_reporting="E_ALL & ~E_DEPRECATED & ~E_NOTICE" ./vendor/bin/phpmd app github phpmd.xml 2>/dev/null || {
+            echo "::error::PHPMD found code quality issues"
+            php -d error_reporting="E_ALL & ~E_DEPRECATED & ~E_NOTICE" ./vendor/bin/phpmd app text phpmd.xml
+            exit 1
+          }
+        
+      - name: PHPMD Status Check
+        if: failure()
+        run: |
+          echo "::error::PHPMD analysis failed. Please fix the code quality issues before merging."
           exit 1
