@@ -171,10 +171,14 @@ jobs:
       - name: Copy CI environment file
         run: cp .env.ci .env
 
-      - name: Create Database
+      - name: Generate App key
+        run: php artisan key:generate
+
+      - name: Create Databases
         run: |
           mkdir -p database
           touch database/database.sqlite
+          touch database/telescope.sqlite
 
       - name: Run Database Migrations
         run: php artisan migrate --force

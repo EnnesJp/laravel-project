@@ -43,6 +43,18 @@ return [
             'transaction_mode' => 'DEFERRED',
         ],
 
+        'telescope_sqlite' => [
+            'driver' => 'sqlite',
+            'url' => env('TELESCOPE_DB_URL'),
+            'database' => env('TELESCOPE_DB_DATABASE', database_path('telescope.sqlite')),
+            'prefix' => '',
+            'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+            'busy_timeout' => null,
+            'journal_mode' => null,
+            'synchronous' => null,
+            'transaction_mode' => 'DEFERRED',
+        ],
+
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
@@ -54,6 +66,26 @@ return [
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+        'telescope' => [
+            'driver' => 'mysql',
+            'url' => env('TELESCOPE_DB_URL'),
+            'host' => env('TELESCOPE_DB_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('TELESCOPE_DB_PORT', env('DB_PORT', '3306')),
+            'database' => env('TELESCOPE_DB_DATABASE', 'telescope'),
+            'username' => env('TELESCOPE_DB_USERNAME', env('DB_USERNAME', 'root')),
+            'password' => env('TELESCOPE_DB_PASSWORD', env('DB_PASSWORD', '')),
+            'unix_socket' => env('TELESCOPE_DB_SOCKET', env('DB_SOCKET', '')),
+            'charset' => env('TELESCOPE_DB_CHARSET', 'utf8mb4'),
+            'collation' => env('TELESCOPE_DB_COLLATION', 'utf8mb4_unicode_ci'),
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => true,
