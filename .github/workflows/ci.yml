@@ -181,7 +181,7 @@ jobs:
           touch database/telescope.sqlite
 
       - name: Run Database Migrations
-        run: php artisan migrate:excluding-telescope --force
+        run: php artisan migrate --force
 
       - name: Run Tests
         run: ./vendor/bin/pest --coverage-text --coverage-clover=coverage.xml
