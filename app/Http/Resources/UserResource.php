@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class UserResource extends JsonResource
+{
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'id'         => $this->id,
+            'name'       => $this->name,
+            'email'      => $this->email,
+            'document'   => $this->formatDocument($this->document),
+            'role'       => $this->role->value,
+            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
+        ];
+    }
+
+    private function formatDocument(string $document): string
+    {
+        $cleanDocument = preg_replace('/[^0-9]/', '', $document);
+
+        if (strlen($cleanDocument) === 11) {
+            return preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $cleanDocument);
+        } elseif (strlen($cleanDocument) === 14) {
+            return preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $cleanDocument);
+        }
+
+        return $document;
+    }
+}

@@ -7,3 +7,6 @@ parameters:
         - app/
 
     level: 6
+
+    ignoreErrors:
+        - '#Access to an undefined property App\\Http\\Resources\\[a-zA-Z0-9::a-zA-Z]#'
