@@ -43,6 +43,18 @@ return [
             'transaction_mode' => 'DEFERRED',
         ],
 
+        'telescope_sqlite' => [
+            'driver' => 'sqlite',
+            'url' => env('TELESCOPE_DB_URL'),
+            'database' => env('TELESCOPE_DB_DATABASE', database_path('telescope.sqlite')),
+            'prefix' => '',
+            'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+            'busy_timeout' => null,
+            'journal_mode' => null,
+            'synchronous' => null,
+            'transaction_mode' => 'DEFERRED',
+        ],
+
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),

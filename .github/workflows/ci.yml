@@ -174,13 +174,14 @@ jobs:
       - name: Generate App key
         run: php artisan key:generate
 
-      - name: Create Database
+      - name: Create Databases
         run: |
           mkdir -p database
           touch database/database.sqlite
+          touch database/telescope.sqlite
 
       - name: Run Database Migrations
-        run: php artisan migrate --force
+        run: php artisan migrate:excluding-telescope --force
 
       - name: Run Tests
         run: ./vendor/bin/pest --coverage-text --coverage-clover=coverage.xml
