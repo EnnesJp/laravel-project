@@ -138,9 +138,54 @@ jobs:
           echo "::error::PHPMD analysis failed. Please fix the code quality issues before merging."
           exit 1
 
-  tests:
+  arch-tests:
     runs-on: ubuntu-latest
-    name: Pest Tests
+    name: Architecture Tests
+    needs: [phpstan, phpmd]
+    
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+          coverage: none
+
+      - name: Restore vendor cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: vendor-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+
+      - name: Copy CI environment file
+        run: cp .env.ci .env
+
+      - name: Generate App key
+        run: php artisan key:generate
+
+      - name: Run Architecture Tests
+        run: ./vendor/bin/pest --testsuite=Arch
+
+      - name: Architecture Tests Status Check
+        if: failure()
+        run: |
+          echo "::error::Architecture tests failed. Please fix the architectural violations before merging."
+          exit 1
+
+  feature-tests:
+    runs-on: ubuntu-latest
+    name: Feature Tests
     needs: [phpstan, phpmd]
     
     permissions:
@@ -183,8 +228,8 @@ jobs:
       - name: Run Database Migrations
         run: php artisan migrate --force
 
-      - name: Run Tests
-        run: ./vendor/bin/pest --coverage-text --coverage-clover=coverage.xml
+      - name: Run Feature Tests
+        run: ./vendor/bin/pest --testsuite=Feature --coverage-text --coverage-clover=coverage.xml
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -194,8 +239,8 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: false
 
-      - name: Test Status Check
+      - name: Feature Tests Status Check
         if: failure()
         run: |
-          echo "::error::Tests failed. Please fix the failing tests before merging."
+          echo "::error::Feature tests failed. Please fix the failing tests before merging."
           exit 1
