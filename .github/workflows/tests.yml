@@ -14,17 +14,11 @@ on:
       - 'phpunit.xml'
   push:
     branches: [ main ]
-  workflow_run:
-    workflows: ["Code Quality Analysis"]
-    types:
-      - completed
 
 jobs:
   tests:
     runs-on: ubuntu-latest
     name: Pest Tests
-    
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name != 'workflow_run' }}
     
     permissions:
       contents: read
