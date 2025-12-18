@@ -3,19 +3,8 @@ name: CI Pipeline
 on:
   pull_request:
     branches: [ main, develop ]
-    paths:
-      - 'app/**'
-      - 'config/**'
-      - 'database/**'
-      - 'routes/**'
-      - 'tests/**'
-      - 'composer.json'
-      - 'composer.lock'
-      - 'phpstan.neon'
-      - 'phpmd.xml'
-      - 'phpunit.xml'
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
   setup:
