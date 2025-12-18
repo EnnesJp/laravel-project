@@ -57,3 +57,18 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+# Copy environment file
+cp .env.example .env
+
+# Build and start containers
+docker-compose up -d --build
+
+# Generate application key
+docker-compose exec app php artisan key:generate
+
+# Run migrations
+docker-compose exec app php artisan migrate --force
+
+echo "Your Laravel app is running at: http://localhost:8000"
+echo "Mailpit web interface is available at: http://localhost:8025"
