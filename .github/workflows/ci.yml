@@ -171,6 +171,9 @@ jobs:
       - name: Copy CI environment file
         run: cp .env.ci .env
 
+      - name: Generate App key
+        run: php artisan key:generate
+
       - name: Create Database
         run: |
           mkdir -p database
