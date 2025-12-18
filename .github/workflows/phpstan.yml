@@ -11,11 +11,18 @@ on:
       - 'composer.json'
       - 'composer.lock'
       - 'phpstan.neon'
+  push:
+    branches: [ main ]
 
 jobs:
   phpstan:
     runs-on: ubuntu-latest
     name: PHPStan Analysis
+    
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
 
     steps:
       - name: Checkout code
@@ -47,4 +54,10 @@ jobs:
         run: php artisan key:generate
 
       - name: Run PHPStan
-        run: ./vendor/bin/phpstan analyse --error-format=github
+        run: ./vendor/bin/phpstan analyse --error-format=github --no-progress
+        
+      - name: PHPStan Status Check
+        if: failure()
+        run: |
+          echo "::error::PHPStan analysis failed. Please fix the errors before merging."
+          exit 1
