@@ -168,11 +168,8 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
 
-      - name: Copy environment file
-        run: cp .env.example .env
-
-      - name: Generate application key
-        run: php artisan key:generate
+      - name: Copy CI environment file
+        run: cp .env.ci .env
 
       - name: Create Database
         run: |
