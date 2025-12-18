@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Enums\UserRole;
 use App\Rules\DocumentRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
@@ -20,6 +21,8 @@ class CreateUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $options = implode(',', UserRole::values());
+
         return [
             'name'     => ['required', 'string', 'max:255'],
             'document' => [
@@ -43,9 +46,13 @@ class CreateUserRequest extends FormRequest
                     ->numbers()
                     ->symbols(),
             ],
+            'role' => ['required', 'string', 'in:'.$options],
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

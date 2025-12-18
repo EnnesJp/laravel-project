@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\DTOs\CreateUserDTO;
-use App\Enums\UserRole;
+use App\DTOs\User\CreateUserDTO;
 use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
@@ -17,20 +16,13 @@ class UserService
     ) {
     }
 
-
-    /**
-     * Create a new user from DTO
-     */
     public function createUser(CreateUserDTO $dto): User
     {
-        $userData = [
-            'name'     => $dto->name,
-            'email'    => $dto->email,
-            'document' => $dto->document,
-            'password' => Hash::make($dto->password),
-            'role'     => UserRole::USER,
-        ];
+        $hash = Hash::make($dto->password);
 
-        return $this->userRepository->create($userData);
+        return $this->userRepository->create(CreateUserDTO::fromArray([
+            ...$dto->toArray(),
+            'password' => $hash,
+        ]));
     }
 }

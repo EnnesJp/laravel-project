@@ -34,7 +34,7 @@ class DocumentRule implements Rule
 
         $sum = 0;
         for ($i = 0; $i < 9; $i++) {
-            $sum += $cpf[$i] * (10 - $i);
+            $sum += (int) $cpf[$i] * (10 - $i);
         }
         $remainder = $sum % 11;
         $digit1    = $remainder < 2 ? 0 : 11 - $remainder;
@@ -45,7 +45,7 @@ class DocumentRule implements Rule
 
         $sum = 0;
         for ($i = 0; $i < 10; $i++) {
-            $sum += $cpf[$i] * (11 - $i);
+            $sum += (int) $cpf[$i] * (11 - $i);
         }
         $remainder = $sum % 11;
         $digit2    = $remainder < 2 ? 0 : 11 - $remainder;
@@ -62,7 +62,7 @@ class DocumentRule implements Rule
         $weights = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
         $sum     = 0;
         for ($i = 0; $i < 12; $i++) {
-            $sum += $cnpj[$i] * $weights[$i];
+            $sum += (int) $cnpj[$i] * $weights[$i];
         }
         $remainder = $sum % 11;
         $digit1    = $remainder < 2 ? 0 : 11 - $remainder;
@@ -74,7 +74,7 @@ class DocumentRule implements Rule
         $weights = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
         $sum     = 0;
         for ($i = 0; $i < 13; $i++) {
-            $sum += $cnpj[$i] * $weights[$i];
+            $sum += (int) $cnpj[$i] * $weights[$i];
         }
         $remainder = $sum % 11;
         $digit2    = $remainder < 2 ? 0 : 11 - $remainder;

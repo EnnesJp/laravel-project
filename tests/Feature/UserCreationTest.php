@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -11,6 +12,7 @@ it('can create a user with valid data', function () {
         'email'    => 'joao@example.com',
         'document' => '43861510014',
         'password' => 'Password123!',
+        'role'     => UserRole::ADMIN->value,
     ];
 
     $response = $this->postJson('/api/v1/users', $userData);
@@ -47,6 +49,7 @@ it('fails to create user with invalid cpf', function () {
         'email'    => 'joao@example.com',
         'document' => '12345678900',
         'password' => 'Password123!',
+        'role'     => UserRole::ADMIN->value,
     ];
 
     $response = $this->postJson('/api/v1/users', $userData);
@@ -61,6 +64,7 @@ it('fails to create user with weak password', function () {
         'email'    => 'joao@example.com',
         'document' => '12345678901',
         'password' => '123456',
+        'role'     => UserRole::ADMIN->value,
     ];
 
     $response = $this->postJson('/api/v1/users', $userData);
@@ -77,6 +81,7 @@ it('fails to create user with duplicate email', function () {
         'email'    => 'joao@example.com',
         'document' => '43861510014',
         'password' => 'Password123!',
+        'role'     => UserRole::ADMIN->value,
     ];
 
     $response = $this->postJson('/api/v1/users', $userData);
@@ -93,6 +98,7 @@ it('fails to create user with duplicate document', function () {
         'email'    => 'maria@example.com',
         'document' => '43861510014',
         'password' => 'Password123!',
+        'role'     => UserRole::ADMIN->value,
     ];
 
     $response = $this->postJson('/api/v1/users', $userData);
@@ -107,6 +113,7 @@ it('fails to create user with invalid email format', function () {
         'email'    => 'invalid-email',
         'document' => '12345678901',
         'password' => 'Password123!',
+        'role'     => UserRole::ADMIN->value,
     ];
 
     $response = $this->postJson('/api/v1/users', $userData);
@@ -126,12 +133,28 @@ it('fails to create user with missing required fields', function () {
             ->assertJsonValidationErrors(['email', 'document', 'password']);
 });
 
+it('fails to create user with invalid role', function () {
+    $userData = [
+        'name'     => 'João Silva',
+        'email'    => 'joao@example.com',
+        'document' => '12345678901',
+        'password' => 'Password123!',
+        'role'     => 'invalid-role',
+    ];
+
+    $response = $this->postJson('/api/v1/users', $userData);
+
+    $response->assertStatus(422)
+            ->assertJsonValidationErrors(['role']);
+});
+
 it('can create user with valid cnpj', function () {
     $userData = [
         'name'     => 'Empresa LTDA',
         'email'    => 'empresa@example.com',
-        'document' => '11222333000181', // Valid CNPJ
+        'document' => '11222333000181',
         'password' => 'Password123!',
+        'role'     => UserRole::ADMIN->value,
     ];
 
     $response = $this->postJson('/api/v1/users', $userData);
@@ -155,6 +178,7 @@ it('formats document correctly in response', function () {
         'email'    => 'joao@example.com',
         'document' => '43861510014',
         'password' => 'Password123!',
+        'role'     => UserRole::ADMIN->value,
     ];
 
     $response = $this->postJson('/api/v1/users', $userData);

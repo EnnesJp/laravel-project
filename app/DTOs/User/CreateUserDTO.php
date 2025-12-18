@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DTOs;
+namespace App\DTOs\User;
 
 use App\Http\Requests\CreateUserRequest;
 
@@ -13,6 +13,7 @@ class CreateUserDTO
         public readonly string $email,
         public readonly string $document,
         public readonly string $password,
+        public readonly string $role
     ) {
     }
 
@@ -25,9 +26,27 @@ class CreateUserDTO
             email: $validated['email'],
             document: $validated['document'],
             password: $validated['password'],
+            role: $validated['role']
         );
     }
 
+    /**
+     * @param array<string, string> $data
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            name: $data['name'],
+            email: $data['email'],
+            document: $data['document'],
+            password: $data['password'],
+            role: $data['role']
+        );
+    }
+
+    /**
+     * @return array<string, string>
+     */
     public function toArray(): array
     {
         return [
@@ -35,6 +54,7 @@ class CreateUserDTO
             'email'    => $this->email,
             'document' => $this->document,
             'password' => $this->password,
+            'role'     => $this->role
         ];
-    }
+    }    
 }

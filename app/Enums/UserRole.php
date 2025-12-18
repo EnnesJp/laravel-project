@@ -10,6 +10,9 @@ enum UserRole: string
     case USER   = 'user';
     case SELLER = 'seller';
 
+    /**
+     * @return string[]
+     */
     public static function values(): array
     {
         return array_column(self::cases(), 'value');
