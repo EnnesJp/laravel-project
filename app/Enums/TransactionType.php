@@ -6,11 +6,10 @@ namespace App\Enums;
 
 use App\Concerns\InteractWithValues;
 
-enum UserRole: string
+enum TransactionType: string
 {
     use InteractWithValues;
 
-    case ADMIN  = 'admin';
-    case USER   = 'user';
-    case SELLER = 'seller';
+    case DEPOSIT  = 'deposit';
+    case TRANSFER = 'transfer';
 }
