@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\DTOs\Transaction\CreateCreditDTO;
 use App\Models\Credit;
 use App\Repositories\Contracts\CreditRepositoryInterface;
 
@@ -14,8 +15,8 @@ class CreditRepository implements CreditRepositoryInterface
     ) {
     }
 
-    public function create(array $data): Credit
+    public function create(CreateCreditDTO $dto): Credit
     {
-        return $this->model->create($data);
+        return $this->model->create($dto->toArray());
     }
 }

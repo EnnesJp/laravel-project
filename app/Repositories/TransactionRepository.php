@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\DTOs\Transaction\CreateTransactionDTO;
 use App\Models\Transaction;
 use App\Repositories\Contracts\TransactionRepositoryInterface;
 
@@ -14,11 +15,14 @@ class TransactionRepository implements TransactionRepositoryInterface
     ) {
     }
 
-    public function create(array $data): Transaction
+    public function create(CreateTransactionDTO $dto): Transaction
     {
-        return $this->model->create($data);
+        return $this->model->create($dto->toArray());
     }
 
+    /**
+     * @param array<string> $relations
+     */
     public function findByIdWithRelations(int $id, array $relations = []): ?Transaction
     {
         return $this->model->with($relations)->find($id);
