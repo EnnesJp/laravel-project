@@ -7,7 +7,7 @@ namespace App\Services;
 use App\DTOs\Transaction\DepositDTO;
 use App\Enums\TransactionType;
 use App\Models\Credit;
-use App\Models\Debit;
+use App\Models\FundDebit;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 
@@ -22,15 +22,14 @@ class TransactionService
                 'type'          => TransactionType::DEPOSIT,
             ]);
 
-            $credit = Credit::create([
-                'entry_id' => $transaction->id,
-                'amount'   => $dto->amount,
+            Credit::create([
+                'transaction_id' => $transaction->id,
+                'amount'         => $dto->amount,
             ]);
 
-            Debit::create([
-                'entry_id'  => $transaction->id,
-                'credit_id' => $credit->id,
-                'amount'    => $dto->amount,
+            FundDebit::create([
+                'transaction_id' => $transaction->id,
+                'amount'         => $dto->amount,
             ]);
 
             return $transaction->load(['credits', 'debits']);

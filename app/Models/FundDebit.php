@@ -5,11 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Debit extends Model
+class FundDebit extends Model
 {
     protected $fillable = [
         'transaction_id',
-        'credit_id',
         'amount',
     ];
 
@@ -20,10 +19,5 @@ class Debit extends Model
     public function transaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class, 'transaction_id');
-    }
-
-    public function credit(): BelongsTo
-    {
-        return $this->belongsTo(Credit::class, 'credit_id');
     }
 }

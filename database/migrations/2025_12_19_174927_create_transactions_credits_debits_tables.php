@@ -27,28 +27,28 @@ return new class () extends Migration {
 
         Schema::create('credits', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('entry_id');
+            $table->unsignedBigInteger('transaction_id');
             $table->integer('original_amount');
             $table->timestamps();
 
-            $table->foreign('entry_id')->references('id')->on('transactions')->onDelete('cascade');
+            $table->foreign('transaction_id')->references('id')->on('transactions')->onDelete('cascade');
 
-            $table->index('entry_id');
+            $table->index('transaction_id');
         });
 
         Schema::create('debits', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('entry_id');
+            $table->unsignedBigInteger('transaction_id');
             $table->unsignedBigInteger('credit_id');
             $table->integer('amount');
             $table->timestamps();
 
-            $table->foreign('entry_id')->references('id')->on('transactions')->onDelete('cascade');
+            $table->foreign('transaction_id')->references('id')->on('transactions')->onDelete('cascade');
             $table->foreign('credit_id')->references('id')->on('credits')->onDelete('cascade');
 
-            $table->unique(['entry_id', 'credit_id']);
+            $table->unique(['transaction_id', 'credit_id']);
             $table->index('credit_id');
-            $table->index('entry_id');
+            $table->index('transaction_id');
         });
     }
 

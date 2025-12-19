@@ -32,11 +32,16 @@ class Transaction extends Model
 
     public function credits(): HasOne
     {
-        return $this->hasOne(Credit::class, 'entry_id');
+        return $this->hasOne(Credit::class, 'transaction_id');
     }
 
     public function debits(): HasMany
     {
-        return $this->hasMany(Debit::class, 'entry_id');
+        return $this->hasMany(Debit::class, 'transaction_id');
+    }
+
+    public function fundDebit(): HasOne
+    {
+        return $this->hasOne(FundDebit::class, 'transaction_id');
     }
 }

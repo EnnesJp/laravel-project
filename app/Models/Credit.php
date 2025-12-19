@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Credit extends Model
 {
     protected $fillable = [
-        'entry_id',
+        'transaction_id',
         'amount',
     ];
 
@@ -19,7 +19,7 @@ class Credit extends Model
 
     public function transaction(): BelongsTo
     {
-        return $this->belongsTo(Transaction::class, 'entry_id');
+        return $this->belongsTo(Transaction::class, 'transaction_id');
     }
 
     public function debits(): HasMany
