@@ -14,5 +14,5 @@ interface TransactionRepositoryInterface
     /**
      * @param array<string> $relations
      */
-    public function findByIdWithRelations(int $id, array $relations = []): ?Transaction;
+    public function findByIdWithRelations(int $transactionId, array $relations = []): ?Transaction;
 }

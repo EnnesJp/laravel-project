@@ -7,15 +7,18 @@ namespace App\DTOs\Transaction;
 class CreateFundDebitDTO
 {
     public function __construct(
-        public readonly int $transaction_id,
+        public readonly int $transactionId,
         public readonly int $amount,
     ) {
     }
 
+    /**
+     * @return array<string, int>
+     */
     public function toArray(): array
     {
         return [
-            'transaction_id' => $this->transaction_id,
+            'transaction_id' => $this->transactionId,
             'amount'         => $this->amount,
         ];
     }

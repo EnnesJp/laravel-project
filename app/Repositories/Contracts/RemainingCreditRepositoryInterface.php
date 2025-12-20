@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 interface RemainingCreditRepositoryInterface
 {
     /**
-     * @return Collection<RemainingCredit>
+     * @return Collection<int, RemainingCredit>
      */
     public function getRemainingCreditsByUserId(int $userId): Collection;
 }

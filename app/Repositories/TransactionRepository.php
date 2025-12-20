@@ -20,8 +20,8 @@ class TransactionRepository implements TransactionRepositoryInterface
         return $this->model->create($dto->toArray());
     }
 
-    public function findByIdWithRelations(int $id, array $relations = []): ?Transaction
+    public function findByIdWithRelations(int $transactionId, array $relations = []): ?Transaction
     {
-        return $this->model->with($relations)->find($id);
+        return $this->model->with($relations)->find($transactionId);
     }
 }

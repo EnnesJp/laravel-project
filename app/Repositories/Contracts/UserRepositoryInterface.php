@@ -9,7 +9,7 @@ use App\Models\User;
 
 interface UserRepositoryInterface
 {
-    public function find(int $id): ?User;
+    public function find(int $userId): ?User;
 
     public function create(CreateUserDTO $data): User;
 }

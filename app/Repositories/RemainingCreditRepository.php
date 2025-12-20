@@ -15,6 +15,9 @@ class RemainingCreditRepository implements RemainingCreditRepositoryInterface
     ) {
     }
 
+    /**
+     * @return Collection<int, RemainingCredit>
+     */
     public function getRemainingCreditsByUserId(int $userId): Collection
     {
         return $this->model->where('user_id', $userId)->get();

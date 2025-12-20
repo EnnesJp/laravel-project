@@ -19,14 +19,13 @@ use App\Repositories\Contracts\DebitRepositoryInterface;
 use App\Repositories\Contracts\FundDebitRepositoryInterface;
 use App\Repositories\Contracts\RemainingCreditRepositoryInterface;
 use App\Repositories\Contracts\TransactionRepositoryInterface;
-use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 
 class TransactionService
 {
     public function __construct(
-        private readonly UserRepositoryInterface $userRepository,
-        private readonly TransactionRepositoryInterface $transactionRepository,
+        private readonly UserService $userService,
+        private readonly TransactionRepositoryInterface $repository,
         private readonly CreditRepositoryInterface $creditRepository,
         private readonly RemainingCreditRepositoryInterface  $remainingCreditRepository,
         private readonly DebitRepositoryInterface $debitRepository,
@@ -47,7 +46,7 @@ class TransactionService
                 payee_user_id: $dto->payee,
                 type: TransactionType::DEPOSIT
             );
-            $transaction = $this->transactionRepository->create($transactionDTO);
+            $transaction = $this->repository->create($transactionDTO);
 
             $creditDTO = new CreateCreditDTO(
                 transaction_id: $transaction->id,
@@ -61,7 +60,7 @@ class TransactionService
             );
             $this->fundDebitRepository->create($debitDTO);
 
-            return $this->transactionRepository->findByIdWithRelations(
+            return $this->repository->findByIdWithRelations(
                 $transaction->id,
                 ['payer', 'payee', 'credits', 'debits']
             );
@@ -81,7 +80,7 @@ class TransactionService
                 payee_user_id: $dto->payee,
                 type: TransactionType::TRANSFER
             );
-            $transaction = $this->transactionRepository->create($transactionDTO);
+            $transaction = $this->repository->create($transactionDTO);
 
             $creditDTO = new CreateCreditDTO(
                 transaction_id: $transaction->id,
@@ -91,7 +90,7 @@ class TransactionService
 
             $this->handlePayerDebits($dto, $transaction);
 
-            return $this->transactionRepository->findByIdWithRelations(
+            return $this->repository->findByIdWithRelations(
                 $transaction->id,
                 ['credits', 'debits']
             );
@@ -143,8 +142,8 @@ class TransactionService
             throw InvalidTransferException::sameUser();
         }
 
-        $payer = $this->userRepository->find($dto->payer);
-        $payee = $this->userRepository->find($dto->payee);
+        $payer = $this->userService->findById($dto->payer);
+        $payee = $this->userService->findById($dto->payee);
 
         if (!$payer) {
             throw InvalidTransferException::userNotFound($dto->payer);
@@ -155,11 +154,11 @@ class TransactionService
         }
 
         if (!$payer->canTransfer()) {
-            throw InvalidTransferException::invalidPayerRole($payer->role->value);
+            throw InvalidTransferException::invalidPayerRole($payer->role);
         }
 
         if (!$payee->canReciveTransfer()) {
-            throw InvalidTransferException::invalidPayeeRole($payee->role->value);
+            throw InvalidTransferException::invalidPayeeRole($payee->role);
         }
     }
 
@@ -176,8 +175,8 @@ class TransactionService
             throw InvalidDepositException::sameUser();
         }
 
-        $payer = $this->userRepository->find($dto->payer);
-        $payee = $this->userRepository->find($dto->payee);
+        $payer = $this->userService->findById($dto->payer);
+        $payee = $this->userService->findById($dto->payee);
 
         if (!$payer) {
             throw InvalidDepositException::userNotFound($dto->payer);
@@ -188,11 +187,11 @@ class TransactionService
         }
 
         if (!$payer->canDeposit()) {
-            throw InvalidDepositException::invalidPayerRole($payer->role->value);
+            throw InvalidDepositException::invalidPayerRole($payer->role);
         }
 
         if (!$payee->canReciveDeposit()) {
-            throw InvalidDepositException::invalidPayeeRole($payee->role->value);
+            throw InvalidDepositException::invalidPayeeRole($payee->role);
         }
     }
 }

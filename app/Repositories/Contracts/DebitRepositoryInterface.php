@@ -13,7 +13,7 @@ interface DebitRepositoryInterface
     public function create(CreateDebitDTO $dto): Debit;
 
     /**
-     * @param Collection<CreateDebitDTO> $debits
+     * @param Collection<int, CreateDebitDTO> $debits
      */
     public function bulkInsert(Collection $debits): bool;
 }

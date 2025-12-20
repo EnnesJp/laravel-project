@@ -21,6 +21,9 @@ class DebitRepository implements DebitRepositoryInterface
         return $this->model->create($dto->toArray());
     }
 
+    /**
+     * @param Collection<int, CreateDebitDTO> $debits
+     */
     public function bulkInsert(Collection $debits): bool
     {
         $data = $debits->map(function (CreateDebitDTO $dto) {
