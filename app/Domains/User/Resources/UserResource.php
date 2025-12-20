@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domains\User\Resources;
 
+use App\ValueObjects\Document\Factory\DocumentFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -27,14 +28,10 @@ class UserResource extends JsonResource
 
     private function formatDocument(string $document): string
     {
-        $cleanDocument = preg_replace('/[^0-9]/', '', $document);
-
-        if (strlen($cleanDocument) === 11) {
-            return preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $cleanDocument);
-        } elseif (strlen($cleanDocument) === 14) {
-            return preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $cleanDocument);
+        try {
+            return DocumentFactory::create($document)->getFormatted();
+        } catch (\InvalidArgumentException) {
+            return $document;
         }
-
-        return $document;
     }
 }

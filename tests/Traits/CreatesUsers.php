@@ -6,12 +6,13 @@ namespace Tests\Traits;
 
 use App\Domains\User\Enums\UserRole;
 use App\Domains\User\Models\User;
+use App\ValueObjects\Document\Cpf;
 
 trait CreatesUsers
 {
     protected function generateCpf(): string
     {
-        return str_pad((string) rand(10000000000, 99999999999), 11, '0', STR_PAD_LEFT);
+        return Cpf::generate()->getValue();
     }
 
     protected function createUser(array $attributes = []): User

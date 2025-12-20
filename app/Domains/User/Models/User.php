@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Domains\User\Models;
 
 use App\Domains\User\Enums\UserRole;
+use App\ValueObjects\Document\Base\Document;
+use App\ValueObjects\Document\Factory\DocumentFactory;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -56,6 +58,21 @@ class User extends Authenticatable
     protected static function newFactory()
     {
         return UserFactory::new();
+    }
+
+    public function getDocumentObject(): Document
+    {
+        return DocumentFactory::create($this->document);
+    }
+
+    public function getFormattedDocument(): string
+    {
+        return $this->getDocumentObject()->getFormatted();
+    }
+
+    public function getDocumentType(): string
+    {
+        return DocumentFactory::getDocumentType($this->document);
     }
 
     public function isAdmin(): bool

@@ -17,6 +17,18 @@ pest()->extend(Tests\TestCase::class)
 
 /*
 |--------------------------------------------------------------------------
+| Unit Tests
+|--------------------------------------------------------------------------
+|
+| Unit tests are isolated tests that don't require database or external dependencies.
+|
+*/
+
+pest()->extend(Tests\TestCase::class)
+    ->in('Unit');
+
+/*
+|--------------------------------------------------------------------------
 | Architecture Tests
 |--------------------------------------------------------------------------
 |
