@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\DTOs\Transaction\DepositDTO;
+use App\DTOs\Transaction\TransferDTO;
 use App\Exceptions\InvalidDepositException;
+use App\Exceptions\InvalidTransferException;
 use App\Http\Requests\DepositRequest;
+use App\Http\Requests\TransferRequest;
 use App\Http\Resources\TransactionResource;
 use App\Http\Responses\JsonResponse;
 use App\Services\TransactionService;
@@ -40,6 +43,33 @@ class TransactionController extends Controller
         } catch (\Exception $e) {
             return JsonResponse::error(
                 'Failed to process deposit',
+                ['error' => $e->getMessage()],
+                500
+            );
+        }
+    }
+
+    public function transfer(TransferRequest $request): BaseJsonResponse
+    {
+        try {
+            $dto = TransferDTO::fromRequest($request);
+
+            $transaction = $this->transactionService->transfer($dto);
+
+            return JsonResponse::created(
+                new TransactionResource($transaction),
+                'Transfer processed successfully'
+            );
+
+        } catch (InvalidTransferException $e) {
+            return JsonResponse::error(
+                $e->getMessage(),
+                ['error' => $e->getMessage()],
+                $e->getCode()
+            );
+        } catch (\Exception $e) {
+            return JsonResponse::error(
+                'Failed to process transfer',
                 ['error' => $e->getMessage()],
                 500
             );

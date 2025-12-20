@@ -13,5 +13,6 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/deposit', [TransactionController::class, 'deposit'])->name('transactions.deposit');
+        Route::post('/transfer', [TransactionController::class, 'transfer'])->name('transactions.transfer');
     });
 });

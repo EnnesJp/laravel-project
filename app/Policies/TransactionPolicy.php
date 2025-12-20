@@ -13,4 +13,9 @@ class TransactionPolicy
     {
         return in_array($user->role, [UserRole::ADMIN, UserRole::EXTERNAL_FOUND]);
     }
+
+    public function transfer(User $user): bool
+    {
+        return in_array($user->role, [UserRole::ADMIN, UserRole::USER, UserRole::SELLER]);
+    }
 }
