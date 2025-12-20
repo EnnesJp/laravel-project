@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domains\User\Services;
 
-use App\Domains\User\DTOs\LoginDTO;
 use App\Domains\User\DTOs\CreateUserDTO;
+use App\Domains\User\DTOs\LoginDTO;
 use App\Domains\User\Models\User;
 use App\Domains\User\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\Auth;

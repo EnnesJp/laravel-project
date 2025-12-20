@@ -17,6 +17,19 @@ pest()->extend(Tests\TestCase::class)
 
 /*
 |--------------------------------------------------------------------------
+| Architecture Tests
+|--------------------------------------------------------------------------
+|
+| Architecture tests ensure that the codebase follows the defined architectural rules
+| and patterns. These tests help maintain code quality and consistency.
+|
+*/
+
+pest()->extend(Tests\TestCase::class)
+    ->in('Arch');
+
+/*
+|--------------------------------------------------------------------------
 | Expectations
 |--------------------------------------------------------------------------
 |

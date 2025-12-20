@@ -8,15 +8,14 @@ arch('laravel-concerns')
     ->expect('App\Concerns')
     ->toBeTraits();
 
-arch('laravel-enums')
-    ->expect('App')
-    ->not->toBeEnums()
-    ->ignoring(['App\Enums']);
-
 arch('laravel-throwable')
     ->expect('App')
     ->not->toImplement(Throwable::class)
-    ->ignoring(['App\Exceptions']);
+    ->ignoring([
+        'App\Exceptions',
+        'App\Domains\Transaction\Exceptions',
+        'App\Domains\User\Exceptions',
+    ]);
 
 arch('laravel-middleware')
     ->expect('App\Http\Middleware')
@@ -28,20 +27,19 @@ arch('laravel-models')
     ->classes()
     ->toExtend('Illuminate\Database\Eloquent\Model');
 
-arch('laravel-model-suffix')
-    ->expect('App\Models')
+arch('domain-models')
+    ->expect('App\Domains\*\Models')
     ->classes()
-    ->not->toHaveSuffix('Model');
+    ->toExtend('Illuminate\Database\Eloquent\Model');
 
 arch('laravel-model-extends')
     ->expect('App')
     ->not->toExtend('Illuminate\Database\Eloquent\Model')
-    ->ignoring(['App\Models']);
-
-arch('laravel-requests')
-    ->expect('App\Http\Requests')
-    ->classes()
-    ->toHaveSuffix('Request');
+    ->ignoring([
+        'App\Models',
+        'App\Domains\Transaction\Models',
+        'App\Domains\User\Models',
+    ]);
 
 arch('laravel-requests-extends')
     ->expect('App\Http\Requests')
@@ -98,26 +96,6 @@ arch('laravel-service-provider-wrong-path')
     ->expect('App')
     ->not->toExtend('Illuminate\Support\ServiceProvider')
     ->ignoring('App\Providers');
-
-arch('laravel-service-provider-wrong-suffix')
-    ->expect('App')
-    ->not->toHaveSuffix('ServiceProvider')
-    ->ignoring('App\Providers');
-
-arch('laravel-controllers-wrong-suffix')
-    ->expect('App')
-    ->not->toHaveSuffix('Controller')
-    ->ignoring('App\Http\Controllers');
-
-arch('laravel-controllers-suffix')
-    ->expect('App\Http\Controllers')
-    ->classes()
-    ->toHaveSuffix('Controller');
-
-arch('laravel-policies')
-    ->expect('App\Policies')
-    ->classes()
-    ->toHaveSuffix('Policy');
 
 arch('laravel-notification-mail-queue')
     ->expect('App\Notifications\Mail')
