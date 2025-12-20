@@ -52,9 +52,10 @@ class TransactionController extends Controller
     public function transfer(TransferRequest $request): BaseJsonResponse
     {
         try {
-            $dto = TransferDTO::fromRequest($request);
+            $dto           = TransferDTO::fromRequest($request);
+            $currentUserId = $request->user()->id;
 
-            $transaction = $this->transactionService->transfer($dto);
+            $transaction = $this->transactionService->transfer($dto, $currentUserId);
 
             return JsonResponse::created(
                 new TransactionResource($transaction),

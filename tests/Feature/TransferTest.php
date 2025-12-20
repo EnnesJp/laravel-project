@@ -193,8 +193,8 @@ it('validates users exist for transfer', function () {
     $response = $this->actingAs($user)
         ->postJson('/api/v1/transfer', [
             'value' => 5000,
-            'payer' => 999,
-            'payee' => 998,
+            'payer' => $user->id,
+            'payee' => 999,
         ]);
 
     $response->assertStatus(422)
@@ -287,4 +287,41 @@ it('handles transfer with multiple credits', function () {
         ]);
 
     $this->assertDatabaseCount('debits', 3);
+});
+
+it('prevents user role from transferring money for others', function () {
+    $user1 = createUserWithBalance(UserRole::USER, 10000);
+    $user2 = createUserWithBalance(UserRole::USER, 5000);
+    $payee = $this->createRegularUser();
+
+    $response = $this->actingAs($user1)
+        ->postJson('/api/v1/transfer', [
+            'value' => 3000,
+            'payer' => $user2->id,
+            'payee' => $payee->id,
+        ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors([
+            'error' => "Users with 'user' role can only transfer their own money",
+        ]);
+});
+
+it('allows admin to transfer money for others', function () {
+    $admin = $this->createAdmin();
+    $user  = createUserWithBalance(UserRole::USER, 10000);
+    $payee = $this->createRegularUser();
+
+    $response = $this->actingAs($admin)
+        ->postJson('/api/v1/transfer', [
+            'value' => 3000,
+            'payer' => $user->id,
+            'payee' => $payee->id,
+        ]);
+
+    $response->assertStatus(201)
+        ->assertJson([
+            'success' => true,
+            'message' => 'Transfer processed successfully',
+        ]);
 });

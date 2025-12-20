@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 class DepositService
 {
     public function __construct(
-        private readonly TransactionValidationService $validationService,
+        private readonly DepositValidationService $validationService,
         private readonly TransactionRepositoryInterface $repository,
         private readonly CreditService $creditService,
         private readonly DebitService $debitService

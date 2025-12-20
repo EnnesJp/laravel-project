@@ -20,4 +20,9 @@ class InvalidTransferException extends InvalidActionBaseException
     {
         return new static("User with role '{$userRole}' cannot recive transfers");
     }
+
+    public static function userCannotTransferForOthers(): static
+    {
+        return new static("Users with 'user' role can only transfer their own money");
+    }
 }

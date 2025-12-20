@@ -29,8 +29,8 @@ class TransactionService
     /**
      * @throws InvalidTransferException
      */
-    public function transfer(TransferDTO $dto): Transaction
+    public function transfer(TransferDTO $dto, int $currentUserId): Transaction
     {
-        return $this->transferService->transfer($dto);
+        return $this->transferService->transfer($dto, $currentUserId);
     }
 }

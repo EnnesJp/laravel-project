@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 class TransferService
 {
     public function __construct(
-        private readonly TransactionValidationService $validationService,
+        private readonly TransferValidationService $validationService,
         private readonly TransactionRepositoryInterface $repository,
         private readonly CreditService $creditService,
         private readonly DebitService $debitService,
@@ -26,9 +26,9 @@ class TransferService
     /**
      * @throws InvalidTransferException
      */
-    public function transfer(TransferDTO $dto): Transaction
+    public function transfer(TransferDTO $dto, int $currentUserId): Transaction
     {
-        $this->validationService->validateTransfer($dto);
+        $this->validationService->validateTransfer($dto, $currentUserId);
 
         return DB::transaction(function () use ($dto) {
             $transactionDTO = new CreateTransactionDTO(
