@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domains\Transaction\Exceptions;
 
+use App\Domains\Transaction\Exceptions\Base\InvalidActionBaseException;
+
 class InvalidDepositException extends InvalidActionBaseException
 {
     public static function invalidPayerRole(string $userRole): static

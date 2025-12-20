@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domains\Transaction\Exceptions;
 
+use App\Domains\Transaction\Exceptions\Base\InvalidActionBaseException;
+
 class InvalidTransferException extends InvalidActionBaseException
 {
     public static function insufficientBalance(int $available, int $required): static

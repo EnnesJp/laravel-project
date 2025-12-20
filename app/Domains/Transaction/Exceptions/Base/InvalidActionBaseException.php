@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\Transaction\Exceptions;
+namespace App\Domains\Transaction\Exceptions\Base;
 
 use Exception;
 
