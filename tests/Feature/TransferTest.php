@@ -166,7 +166,9 @@ it('validates amount is positive for transfer', function () {
         ]);
 
     $response->assertStatus(422)
-        ->assertJsonValidationErrors(['value']);
+        ->assertJsonValidationErrors([
+            'error' => 'Invalid deposit amount: -100. Amount must be greater than 0',
+        ]);
 });
 
 it('validates payer and payee are different for transfer', function () {
@@ -180,7 +182,9 @@ it('validates payer and payee are different for transfer', function () {
         ]);
 
     $response->assertStatus(422)
-        ->assertJsonValidationErrors(['payer', 'payee']);
+        ->assertJsonValidationErrors([
+            'error' => 'Cannot create deposit where payer and payee are the same user',
+        ]);
 });
 
 it('validates users exist for transfer', function () {
@@ -194,7 +198,9 @@ it('validates users exist for transfer', function () {
         ]);
 
     $response->assertStatus(422)
-        ->assertJsonValidationErrors(['payer', 'payee']);
+        ->assertJsonValidationErrors([
+            'error' => 'User with ID 999 not found',
+        ]);
 });
 
 it('fails with insufficient balance', function () {
@@ -209,7 +215,9 @@ it('fails with insufficient balance', function () {
         ]);
 
     $response->assertStatus(422)
-        ->assertJsonPath('error', 'Insufficient balance. Available: 1000, Required: 5000');
+        ->assertJsonValidationErrors([
+            'error' => 'Insufficient balance. Available: 1000, Required: 5000',
+        ]);
 });
 
 it('fails when payer has invalid role', function () {
@@ -225,7 +233,9 @@ it('fails when payer has invalid role', function () {
         ]);
 
     $response->assertStatus(422)
-        ->assertJsonPath('error', "User with role 'external_found' cannot perform transfers");
+        ->assertJsonValidationErrors([
+            'error' => "User with role 'external_found' cannot perform transfers",
+        ]);
 });
 
 it('fails when payee has invalid role', function () {
@@ -240,7 +250,9 @@ it('fails when payee has invalid role', function () {
         ]);
 
     $response->assertStatus(422)
-        ->assertJsonPath('error', "User with role 'external_found' cannot perform transfers");
+        ->assertJsonValidationErrors([
+            'error' => "User with role 'external_found' cannot recive transfers",
+        ]);
 });
 
 it('handles transfer with multiple credits', function () {

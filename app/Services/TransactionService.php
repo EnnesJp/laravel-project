@@ -115,11 +115,11 @@ class TransactionService
                 break;
             }
 
-            $debitAmount = min($remainingAmount, $credit->available_amount);
+            $debitAmount = min($remainingAmount, $credit->remaining);
 
             $debitDTO = new CreateDebitDTO(
                 transaction_id: $transaction->id,
-                credit_id: $credit->id,
+                credit_id: $credit->credit_id,
                 amount: $debitAmount
             );
 

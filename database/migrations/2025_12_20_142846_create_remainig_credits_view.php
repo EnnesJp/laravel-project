@@ -17,6 +17,7 @@ return new class () extends Migration {
                 c.amount - IFNULL((SELECT SUM(d.amount) FROM debits d WHERE d.credit_id = c.id), 0) AS remaining
             FROM credits c
             JOIN transactions t ON t.id = c.transaction_id
+            GROUP BY c.id
             HAVING remaining > 0;
         ');
     }
