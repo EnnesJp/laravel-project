@@ -13,18 +13,18 @@ class InvalidActionBaseException extends Exception
         parent::__construct($message, $code, $previous);
     }
 
-    public static function sameUser(): self
+    public static function sameUser(): static
     {
-        return new self('Cannot create deposit where payer and payee are the same user');
+        return new static('Cannot create deposit where payer and payee are the same user');
     }
 
-    public static function invalidAmount(int $amount): self
+    public static function invalidAmount(int $amount): static
     {
-        return new self("Invalid deposit amount: {$amount}. Amount must be greater than 0");
+        return new static("Invalid deposit amount: {$amount}. Amount must be greater than 0");
     }
 
-    public static function userNotFound(int $userId): self
+    public static function userNotFound(int $userId): static
     {
-        return new self("User with ID {$userId} not found");
+        return new static("User with ID {$userId} not found");
     }
 }

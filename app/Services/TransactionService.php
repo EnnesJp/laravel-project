@@ -50,13 +50,13 @@ class TransactionService
             $transaction = $this->transactionRepository->create($transactionDTO);
 
             $creditDTO = new CreateCreditDTO(
-                entry_id: $transaction->id,
+                transaction_id: $transaction->id,
                 amount: $dto->amount
             );
             $this->creditRepository->create($creditDTO);
 
             $debitDTO = new CreateFundDebitDTO(
-                entry_id: $transaction->id,
+                transaction_id: $transaction->id,
                 amount: $dto->amount
             );
             $this->fundDebitRepository->create($debitDTO);
@@ -84,7 +84,7 @@ class TransactionService
             $transaction = $this->transactionRepository->create($transactionDTO);
 
             $creditDTO = new CreateCreditDTO(
-                entry_id: $transaction->id,
+                transaction_id: $transaction->id,
                 amount: $dto->amount
             );
             $this->creditRepository->create($creditDTO);
@@ -118,7 +118,7 @@ class TransactionService
             $debitAmount = min($remainingAmount, $credit->available_amount);
 
             $debitDTO = new CreateDebitDTO(
-                entry_id: $transaction->id,
+                transaction_id: $transaction->id,
                 credit_id: $credit->id,
                 amount: $debitAmount
             );

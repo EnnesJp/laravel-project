@@ -13,13 +13,13 @@ class InvalidDepositException extends InvalidActionBaseException
         parent::__construct($message, $code, $previous);
     }
 
-    public static function invalidPayerRole(string $userRole): self
+    public static function invalidPayerRole(string $userRole): static
     {
-        return new self("Payer with role '{$userRole}' cannot be used for deposits. Only external_found users can be payers");
+        return new static("Payer with role '{$userRole}' cannot be used for deposits. Only external_found users can be payers");
     }
 
-    public static function invalidPayeeRole(string $userRole): self
+    public static function invalidPayeeRole(string $userRole): static
     {
-        return new self("Payee with role '{$userRole}' cannot recive deposits.");
+        return new static("Payee with role '{$userRole}' cannot recive deposits.");
     }
 }

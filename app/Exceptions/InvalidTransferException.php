@@ -13,18 +13,18 @@ class InvalidTransferException extends InvalidActionBaseException
         parent::__construct($message, $code, $previous);
     }
 
-    public static function insufficientBalance(int $available, int $required): self
+    public static function insufficientBalance(int $available, int $required): static
     {
-        return new self("Insufficient balance. Available: {$available}, Required: {$required}");
+        return new static("Insufficient balance. Available: {$available}, Required: {$required}");
     }
 
-    public static function invalidPayerRole(string $userRole): self
+    public static function invalidPayerRole(string $userRole): static
     {
-        return new self("User with role '{$userRole}' cannot perform transfers");
+        return new static("User with role '{$userRole}' cannot perform transfers");
     }
 
-    public static function invalidPayeeRole(string $userRole): self
+    public static function invalidPayeeRole(string $userRole): static
     {
-        return new self("User with role '{$userRole}' cannot recive transfers");
+        return new static("User with role '{$userRole}' cannot recive transfers");
     }
 }

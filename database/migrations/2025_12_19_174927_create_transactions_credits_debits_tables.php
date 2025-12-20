@@ -28,7 +28,7 @@ return new class () extends Migration {
         Schema::create('credits', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('transaction_id');
-            $table->integer('original_amount');
+            $table->integer('amount');
             $table->timestamps();
 
             $table->foreign('transaction_id')->references('id')->on('transactions')->onDelete('cascade');

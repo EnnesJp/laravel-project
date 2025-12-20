@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\DTOs\Transaction\CreateFundDebitDTO;
-use App\Models\Debit;
 use App\Models\FundDebit;
 use App\Repositories\Contracts\FundDebitRepositoryInterface;
 
@@ -16,7 +15,7 @@ class FundDebitRepository implements FundDebitRepositoryInterface
     ) {
     }
 
-    public function create(CreateFundDebitDTO $dto): Debit
+    public function create(CreateFundDebitDTO $dto): FundDebit
     {
         return $this->model->create($dto->toArray());
     }

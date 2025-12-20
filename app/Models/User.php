@@ -56,36 +56,39 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->role === UserRole::ADMIN->value;
+        return $this->role === UserRole::ADMIN;
     }
 
     public function canDeposit(): bool
     {
-        return $this->role === UserRole::EXTERNAL_FOUND->value;
+        return in_array($this->role, [
+            UserRole::ADMIN,
+            UserRole::EXTERNAL_FOUND,
+        ]);
     }
 
     public function canReciveDeposit(): bool
     {
         return in_array($this->role, [
-            UserRole::ADMIN->value,
-            UserRole::USER->value,
+            UserRole::ADMIN,
+            UserRole::USER,
         ]);
     }
 
     public function canTransfer(): bool
     {
         return in_array($this->role, [
-            UserRole::ADMIN->value,
-            UserRole::USER->value,
+            UserRole::ADMIN,
+            UserRole::USER,
         ]);
     }
 
     public function canReciveTransfer(): bool
     {
         return in_array($this->role, [
-            UserRole::ADMIN->value,
-            UserRole::USER->value,
-            UserRole::SELLER->value,
+            UserRole::ADMIN,
+            UserRole::USER,
+            UserRole::SELLER,
         ]);
     }
 }
