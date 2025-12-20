@@ -12,7 +12,7 @@ uses(CreatesUsers::class);
 
 function createUserWithBalance(UserRole $role, int $balance): \App\Models\User
 {
-    $user         = test()->createUser(['role' => $role]);
+    $user         = test()->createUser(['role' => $role->value]);
     $externalFund = test()->createExternalFund();
 
     $transaction = Transaction::create([

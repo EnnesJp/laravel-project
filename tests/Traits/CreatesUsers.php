@@ -18,7 +18,7 @@ trait CreatesUsers
     {
         $defaultAttributes = [
             'document' => $this->generateCpf(),
-            'role'     => UserRole::USER,
+            'role'     => UserRole::USER->value,
         ];
 
         return User::factory()->create(array_merge($defaultAttributes, $attributes));
@@ -26,21 +26,21 @@ trait CreatesUsers
 
     protected function createAdmin(array $attributes = []): User
     {
-        return $this->createUser(array_merge(['role' => UserRole::ADMIN], $attributes));
+        return $this->createUser(array_merge(['role' => UserRole::ADMIN->value], $attributes));
     }
 
     protected function createExternalFund(array $attributes = []): User
     {
-        return $this->createUser(array_merge(['role' => UserRole::EXTERNAL_FOUND], $attributes));
+        return $this->createUser(array_merge(['role' => UserRole::EXTERNAL_FOUND->value], $attributes));
     }
 
     protected function createSeller(array $attributes = []): User
     {
-        return $this->createUser(array_merge(['role' => UserRole::SELLER], $attributes));
+        return $this->createUser(array_merge(['role' => UserRole::SELLER->value], $attributes));
     }
 
     protected function createRegularUser(array $attributes = []): User
     {
-        return $this->createUser(array_merge(['role' => UserRole::USER], $attributes));
+        return $this->createUser(array_merge(['role' => UserRole::USER->value], $attributes));
     }
 }

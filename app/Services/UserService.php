@@ -52,7 +52,7 @@ class UserService
         ];
     }
 
-    public function findById(int $userId): User
+    public function findById(int $userId): ?User
     {
         return $this->userRepository->find($userId);
     }
