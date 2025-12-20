@@ -107,6 +107,7 @@ class TransactionService
             throw InvalidTransferException::insufficientBalance($availableBalance, $dto->amount);
         }
 
+        $debitsToCreate  = collect();
         $remainingAmount = $dto->amount;
 
         foreach ($availableCredits as $credit) {
@@ -121,10 +122,12 @@ class TransactionService
                 credit_id: $credit->id,
                 amount: $debitAmount
             );
-            $this->debitRepository->create($debitDTO);
 
+            $debitsToCreate->push($debitDTO);
             $remainingAmount -= $debitAmount;
         }
+
+        $this->debitRepository->bulkInsert($debitsToCreate);
     }
 
     /**
