@@ -10,27 +10,30 @@ use App\DTOs\Transaction\CreateTransactionDTO;
 use App\DTOs\Transaction\DepositDTO;
 use App\Enums\TransactionType;
 use App\Enums\UserRole;
+use App\Exceptions\InvalidDepositException;
 use App\Models\Transaction;
 use App\Repositories\Contracts\CreditRepositoryInterface;
 use App\Repositories\Contracts\FundDebitRepositoryInterface;
 use App\Repositories\Contracts\TransactionRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 
 class TransactionService
 {
     public function __construct(
-        private readonly UserService $userService,
+        private readonly UserRepositoryInterface $userRepository,
         private readonly TransactionRepositoryInterface $transactionRepository,
         private readonly CreditRepositoryInterface $creditRepository,
         private readonly FundDebitRepositoryInterface $debitRepository
     ) {
     }
 
+    /**
+     * @throws InvalidDepositException
+     */
     public function deposit(DepositDTO $dto): Transaction
     {
-        if (!$this->validateDeposit($dto)) {
-            throw new \Exception('Invalid deposit');
-        }
+        $this->validateDeposit($dto);
 
         return DB::transaction(function () use ($dto) {
             $transactionDTO = new CreateTransactionDTO(
@@ -54,24 +57,41 @@ class TransactionService
 
             return $this->transactionRepository->findByIdWithRelations(
                 $transaction->id,
-                ['credits', 'debits']
+                ['payer', 'payee', 'credits', 'debits']
             );
         });
     }
 
-    private function validateDeposit(DepositDTO $dto): bool
+    /**
+     * @throws InvalidDepositException
+     */
+    private function validateDeposit(DepositDTO $dto): void
     {
-        $payer = $this->userService->findById($dto->payer);
-        $payee = $this->userService->findById($dto->payee);
-
-        if (!$payer || !$payee) {
-            return false;
+        if ($dto->amount <= 0) {
+            throw InvalidDepositException::invalidAmount($dto->amount);
         }
 
-        if ($payer->role !== UserRole::EXTERNAL_FOUND || $payee->type === UserRole::EXTERNAL_FOUND) {
-            return false;
+        if ($dto->payer === $dto->payee) {
+            throw InvalidDepositException::sameUser();
         }
 
-        return true;
+        $payer = $this->userRepository->find($dto->payer);
+        $payee = $this->userRepository->find($dto->payee);
+
+        if (!$payer) {
+            throw InvalidDepositException::userNotFound($dto->payer);
+        }
+
+        if (!$payee) {
+            throw InvalidDepositException::userNotFound($dto->payee);
+        }
+
+        if ($payer->role !== UserRole::EXTERNAL_FOUND) {
+            throw InvalidDepositException::invalidPayerRole($payer->role->value);
+        }
+
+        if ($payee->role === UserRole::EXTERNAL_FOUND) {
+            throw InvalidDepositException::invalidPayeeRole($payee->role->value);
+        }
     }
 }

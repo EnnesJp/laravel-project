@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\DTOs\Transaction\DepositDTO;
+use App\Exceptions\InvalidDepositException;
 use App\Http\Requests\DepositRequest;
 use App\Http\Resources\TransactionResource;
 use App\Http\Responses\JsonResponse;
@@ -30,6 +31,12 @@ class TransactionController extends Controller
                 'Deposit processed successfully'
             );
 
+        } catch (InvalidDepositException $e) {
+            return JsonResponse::error(
+                $e->getMessage(),
+                ['error' => $e->getMessage()],
+                $e->getCode()
+            );
         } catch (\Exception $e) {
             return JsonResponse::error(
                 'Failed to process deposit',
