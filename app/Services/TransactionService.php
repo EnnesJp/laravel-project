@@ -5,15 +5,19 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DTOs\Transaction\CreateCreditDTO;
+use App\DTOs\Transaction\CreateDebitDTO;
 use App\DTOs\Transaction\CreateFundDebitDTO;
 use App\DTOs\Transaction\CreateTransactionDTO;
 use App\DTOs\Transaction\DepositDTO;
+use App\DTOs\Transaction\TransferDTO;
 use App\Enums\TransactionType;
-use App\Enums\UserRole;
 use App\Exceptions\InvalidDepositException;
+use App\Exceptions\InvalidTransferException;
 use App\Models\Transaction;
 use App\Repositories\Contracts\CreditRepositoryInterface;
+use App\Repositories\Contracts\DebitRepositoryInterface;
 use App\Repositories\Contracts\FundDebitRepositoryInterface;
+use App\Repositories\Contracts\RemainingCreditRepositoryInterface;
 use App\Repositories\Contracts\TransactionRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +28,9 @@ class TransactionService
         private readonly UserRepositoryInterface $userRepository,
         private readonly TransactionRepositoryInterface $transactionRepository,
         private readonly CreditRepositoryInterface $creditRepository,
-        private readonly FundDebitRepositoryInterface $debitRepository
+        private readonly RemainingCreditRepositoryInterface  $remainingCreditRepository,
+        private readonly DebitRepositoryInterface $debitRepository,
+        private readonly FundDebitRepositoryInterface $fundDebitRepository
     ) {
     }
 
@@ -53,13 +59,105 @@ class TransactionService
                 entry_id: $transaction->id,
                 amount: $dto->amount
             );
-            $this->debitRepository->create($debitDTO);
+            $this->fundDebitRepository->create($debitDTO);
 
             return $this->transactionRepository->findByIdWithRelations(
                 $transaction->id,
                 ['payer', 'payee', 'credits', 'debits']
             );
         });
+    }
+
+    /**
+     * @throws InvalidTransferException
+     */
+    public function transfer(TransferDTO $dto): Transaction
+    {
+        $this->validateTransfer($dto);
+
+        return DB::transaction(function () use ($dto) {
+            $transactionDTO = new CreateTransactionDTO(
+                payer_user_id: $dto->payer,
+                payee_user_id: $dto->payee,
+                type: TransactionType::TRANSFER
+            );
+            $transaction = $this->transactionRepository->create($transactionDTO);
+
+            $creditDTO = new CreateCreditDTO(
+                entry_id: $transaction->id,
+                amount: $dto->amount
+            );
+            $this->creditRepository->create($creditDTO);
+
+            $this->handlePayerDebits($dto, $transaction);
+
+            return $this->transactionRepository->findByIdWithRelations(
+                $transaction->id,
+                ['credits', 'debits']
+            );
+        });
+    }
+
+    private function handlePayerDebits(TransferDTO $dto, Transaction $transaction): void
+    {
+        $availableCredits = $this->remainingCreditRepository->getRemainingCreditsByUserId($dto->payer);
+        $availableBalance = $availableCredits->sum('remaining');
+
+        if ($availableBalance < $dto->amount) {
+            throw InvalidTransferException::insufficientBalance($availableBalance, $dto->amount);
+        }
+
+        $remainingAmount = $dto->amount;
+
+        foreach ($availableCredits as $credit) {
+            if ($remainingAmount <= 0) {
+                break;
+            }
+
+            $debitAmount = min($remainingAmount, $credit->available_amount);
+
+            $debitDTO = new CreateDebitDTO(
+                entry_id: $transaction->id,
+                credit_id: $credit->id,
+                amount: $debitAmount
+            );
+            $this->debitRepository->create($debitDTO);
+
+            $remainingAmount -= $debitAmount;
+        }
+    }
+
+    /**
+     * @throws InvalidTransferException
+     */
+    private function validateTransfer(TransferDTO $dto): void
+    {
+        if ($dto->amount <= 0) {
+            throw InvalidTransferException::invalidAmount($dto->amount);
+        }
+
+        if ($dto->payer === $dto->payee) {
+            throw InvalidTransferException::sameUser();
+        }
+
+        $payer = $this->userRepository->find($dto->payer);
+        $payee = $this->userRepository->find($dto->payee);
+
+        if (!$payer) {
+            throw InvalidTransferException::userNotFound($dto->payer);
+        }
+
+        if (!$payee) {
+            throw InvalidTransferException::userNotFound($dto->payee);
+        }
+
+        if (!$payer->canTransfer()) {
+            throw InvalidTransferException::invalidPayerRole($payer->role->value);
+        }
+
+        if (!$payee->canReciveTransfer()) {
+            throw InvalidTransferException::invalidPayeeRole($payee->role->value);
+        }
     }
 
     /**
@@ -86,11 +184,11 @@ class TransactionService
             throw InvalidDepositException::userNotFound($dto->payee);
         }
 
-        if ($payer->role !== UserRole::EXTERNAL_FOUND) {
+        if (!$payer->canDeposit()) {
             throw InvalidDepositException::invalidPayerRole($payer->role->value);
         }
 
-        if ($payee->role === UserRole::EXTERNAL_FOUND) {
+        if (!$payee->canReciveDeposit()) {
             throw InvalidDepositException::invalidPayeeRole($payee->role->value);
         }
     }

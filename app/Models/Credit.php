@@ -10,7 +10,7 @@ class Credit extends Model
 {
     protected $fillable = [
         'transaction_id',
-        'amount',
+        'original_amount',
     ];
 
     protected $casts = [

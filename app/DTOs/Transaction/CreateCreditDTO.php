@@ -15,8 +15,8 @@ class CreateCreditDTO
     public function toArray(): array
     {
         return [
-            'entry_id' => $this->entry_id,
-            'amount'   => $this->amount,
+            'entry_id'        => $this->entry_id,
+            'original_amount' => $this->amount,
         ];
     }
 }

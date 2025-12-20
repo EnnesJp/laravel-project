@@ -20,9 +20,9 @@ class TransferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'value' => ['required', 'integer', 'min:1'],
-            'payee' => ['required', 'integer', 'exists:users,id', 'different:payer'],
-            'payer' => ['required', 'integer', 'exists:users,id', 'different:payee'],
+            'value' => ['required', 'integer'],
+            'payee' => ['required', 'integer'],
+            'payer' => ['required', 'integer'],
         ];
     }
 
@@ -32,15 +32,10 @@ class TransferRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'value.required'  => 'The amount field is required.',
-            'value.integer'   => 'The amount must be an integer.',
-            'value.min'       => 'The amount must be at least 1.',
-            'payee.required'  => 'The payee field is required.',
-            'payee.exists'    => 'The selected payee user does not exist.',
-            'payee.different' => 'The payee must be different from the payer.',
-            'payer.required'  => 'The payer field is required.',
-            'payer.exists'    => 'The selected payer user does not exist.',
-            'payer.different' => 'The payer must be different from the payee.',
+            'value.required' => 'The amount field is required.',
+            'value.integer'  => 'The amount must be an integer.',
+            'payee.required' => 'The payee field is required.',
+            'payer.required' => 'The payer field is required.',
         ];
     }
 }

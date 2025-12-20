@@ -18,8 +18,13 @@ class InvalidTransferException extends InvalidActionBaseException
         return new self("Insufficient balance. Available: {$available}, Required: {$required}");
     }
 
-    public static function invalidUserRole(string $userRole): self
+    public static function invalidPayerRole(string $userRole): self
     {
         return new self("User with role '{$userRole}' cannot perform transfers");
+    }
+
+    public static function invalidPayeeRole(string $userRole): self
+    {
+        return new self("User with role '{$userRole}' cannot recive transfers");
     }
 }
