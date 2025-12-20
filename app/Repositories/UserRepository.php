@@ -15,6 +15,11 @@ class UserRepository implements UserRepositoryInterface
     ) {
     }
 
+    public function find(int $userId): ?User
+    {
+        return $this->model->find($userId);
+    }
+
     public function create(CreateUserDTO $data): User
     {
         return $this->model->create($data->toArray());

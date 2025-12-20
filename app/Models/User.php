@@ -50,12 +50,44 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
-            'role'              => UserRole::class,
         ];
     }
 
     public function isAdmin(): bool
     {
         return $this->role === UserRole::ADMIN->value;
+    }
+
+    public function canDeposit(): bool
+    {
+        return in_array($this->role, [
+            UserRole::ADMIN->value,
+            UserRole::EXTERNAL_FOUND->value,
+        ]);
+    }
+
+    public function canReciveDeposit(): bool
+    {
+        return in_array($this->role, [
+            UserRole::ADMIN->value,
+            UserRole::USER->value,
+        ]);
+    }
+
+    public function canTransfer(): bool
+    {
+        return in_array($this->role, [
+            UserRole::ADMIN->value,
+            UserRole::USER->value,
+        ]);
+    }
+
+    public function canReciveTransfer(): bool
+    {
+        return in_array($this->role, [
+            UserRole::ADMIN->value,
+            UserRole::USER->value,
+            UserRole::SELLER->value,
+        ]);
     }
 }

@@ -51,4 +51,9 @@ class UserService
             'token' => $token,
         ];
     }
+
+    public function findById(int $userId): ?User
+    {
+        return $this->userRepository->find($userId);
+    }
 }
