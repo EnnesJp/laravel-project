@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
-use App\Models\Transaction;
+use App\Domains\Transaction\Models\Transaction;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DepositRequest extends FormRequest

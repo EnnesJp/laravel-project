@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use App\Enums\TransactionType;
-use App\Enums\UserRole;
-use App\Models\Credit;
-use App\Models\Transaction;
+use App\Domains\Transaction\Enums\TransactionType;
+use App\Domains\Transaction\Models\Credit;
+use App\Domains\Transaction\Models\Transaction;
+use App\Domains\User\Enums\UserRole;
 use Tests\Traits\CreatesUsers;
 
 uses(CreatesUsers::class);
 
-function createUserWithBalance(UserRole $role, int $balance): \App\Models\User
+function createUserWithBalance(UserRole $role, int $balance): \App\Domains\User\Models\User
 {
     $user         = test()->createUser(['role' => $role->value]);
     $externalFund = test()->createExternalFund();

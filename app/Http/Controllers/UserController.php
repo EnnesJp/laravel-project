@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\DTOs\User\CreateUserDTO;
+use App\Domains\User\DTOs\CreateUserDTO;
+use App\Domains\User\Resources\UserResource;
+use App\Domains\User\Services\UserService;
 use App\Http\Requests\CreateUserRequest;
-use App\Http\Resources\UserResource;
 use App\Http\Responses\JsonResponse;
-use App\Services\UserService;
 use Illuminate\Http\JsonResponse as BaseJsonResponse;
 
 class UserController extends Controller

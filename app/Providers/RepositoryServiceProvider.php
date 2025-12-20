@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Repositories\Contracts\CreditRepositoryInterface;
-use App\Repositories\Contracts\DebitRepositoryInterface;
-use App\Repositories\Contracts\FundDebitRepositoryInterface;
-use App\Repositories\Contracts\RemainingCreditRepositoryInterface;
-use App\Repositories\Contracts\TransactionRepositoryInterface;
-use App\Repositories\Contracts\UserRepositoryInterface;
-use App\Repositories\CreditRepository;
-use App\Repositories\DebitRepository;
-use App\Repositories\FundDebitRepository;
-use App\Repositories\RemainingCreditRepository;
-use App\Repositories\TransactionRepository;
-use App\Repositories\UserRepository;
+use App\Domains\Transaction\Repositories\Contracts\CreditRepositoryInterface;
+use App\Domains\Transaction\Repositories\Contracts\DebitRepositoryInterface;
+use App\Domains\Transaction\Repositories\Contracts\FundDebitRepositoryInterface;
+use App\Domains\Transaction\Repositories\Contracts\RemainingCreditRepositoryInterface;
+use App\Domains\Transaction\Repositories\Contracts\TransactionRepositoryInterface;
+use App\Domains\Transaction\Repositories\CreditRepository;
+use App\Domains\Transaction\Repositories\DebitRepository;
+use App\Domains\Transaction\Repositories\FundDebitRepository;
+use App\Domains\Transaction\Repositories\RemainingCreditRepository;
+use App\Domains\Transaction\Repositories\TransactionRepository;
+use App\Domains\User\Repositories\Contracts\UserRepositoryInterface;
+use App\Domains\User\Repositories\UserRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider

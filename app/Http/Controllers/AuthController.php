@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\DTOs\Auth\LoginDTO;
+use App\Domains\User\DTOs\LoginDTO;
+use App\Domains\User\Resources\LoginResource;
+use App\Domains\User\Services\UserService;
 use App\Http\Requests\LoginRequest;
-use App\Http\Resources\LoginResource;
 use App\Http\Responses\JsonResponse;
-use App\Services\UserService;
 use Illuminate\Http\JsonResponse as BaseJsonResponse;
 use Illuminate\Validation\ValidationException;
 

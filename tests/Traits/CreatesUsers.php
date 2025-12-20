@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Traits;
 
-use App\Enums\UserRole;
-use App\Models\User;
+use App\Domains\User\Enums\UserRole;
+use App\Domains\User\Models\User;
 
 trait CreatesUsers
 {

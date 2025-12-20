@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Enums\TransactionType;
+use App\Domains\Transaction\Enums\TransactionType;
 use Tests\Traits\CreatesUsers;
 
 uses(CreatesUsers::class);
