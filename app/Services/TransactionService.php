@@ -48,7 +48,7 @@ class TransactionService
 
             return $this->transactionRepository->findByIdWithRelations(
                 $transaction->id,
-                ['payer', 'payee', 'credits', 'debits']
+                ['credits', 'debits']
             );
         });
     }
