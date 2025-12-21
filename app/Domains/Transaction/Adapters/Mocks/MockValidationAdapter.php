@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\Transaction\Adapters;
+namespace App\Domains\Transaction\Adapters\Mocks;
 
 use App\Domains\Transaction\Adapters\Contracts\ValidationAdapterInterface;
 use App\Domains\Transaction\DTOs\TransferDTO;
