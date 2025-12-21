@@ -72,3 +72,33 @@ docker-compose exec app php artisan migrate --force
 
 echo "Your Laravel app is running at: http://localhost:8000"
 echo "Mailpit web interface is available at: http://localhost:8025"
+
+
+### Domain-Driven Organization
+```
+app/
+├── Domains/
+│   ├── Auth/
+│   │   └── DTOs/
+│   ├── Transaction/
+│   │   ├── DTOs/
+│   │   ├── Exceptions/
+│   │   ├── Models/
+│   │   ├── Policies/
+│   │   ├── Repositories/
+│   │   │   └── Contracts/
+│   │   ├── Resources/
+│   │   └── Services/
+│   └── User/
+│       ├── DTOs/
+│       ├── Models/
+│       ├── Repositories/
+│       │   └── Contracts/
+│       ├── Resources/
+│       └── Services/
+├── Actions/
+│   ├── Transaction/
+│   └── User/
+└── Services/
+    └── Validation/
+```

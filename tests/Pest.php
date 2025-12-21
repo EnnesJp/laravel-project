@@ -17,6 +17,31 @@ pest()->extend(Tests\TestCase::class)
 
 /*
 |--------------------------------------------------------------------------
+| Unit Tests
+|--------------------------------------------------------------------------
+|
+| Unit tests are isolated tests that don't require database or external dependencies.
+|
+*/
+
+pest()->extend(Tests\TestCase::class)
+    ->in('Unit');
+
+/*
+|--------------------------------------------------------------------------
+| Architecture Tests
+|--------------------------------------------------------------------------
+|
+| Architecture tests ensure that the codebase follows the defined architectural rules
+| and patterns. These tests help maintain code quality and consistency.
+|
+*/
+
+pest()->extend(Tests\TestCase::class)
+    ->in('Arch');
+
+/*
+|--------------------------------------------------------------------------
 | Expectations
 |--------------------------------------------------------------------------
 |

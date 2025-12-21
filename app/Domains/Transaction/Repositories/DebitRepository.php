@@ -1,0 +1,39 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domains\Transaction\Repositories;
+
+use App\Domains\Transaction\DTOs\CreateDebitDTO;
+use App\Domains\Transaction\Models\Debit;
+use App\Domains\Transaction\Repositories\Contracts\DebitRepositoryInterface;
+use Illuminate\Support\Collection;
+
+class DebitRepository implements DebitRepositoryInterface
+{
+    public function __construct(
+        private readonly Debit $model
+    ) {
+    }
+
+    public function create(CreateDebitDTO $dto): Debit
+    {
+        return $this->model->create($dto->toArray());
+    }
+
+    /**
+     * @param Collection<int, CreateDebitDTO> $debits
+     */
+    public function bulkInsert(Collection $debits): bool
+    {
+        $data = $debits->map(function (CreateDebitDTO $dto) {
+            $array               = $dto->toArray();
+            $now                 = now();
+            $array['created_at'] = $now;
+            $array['updated_at'] = $now;
+            return $array;
+        })->toArray();
+
+        return $this->model->insert($data);
+    }
+}

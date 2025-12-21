@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\DTOs\Transaction\DepositDTO;
-use App\DTOs\Transaction\TransferDTO;
-use App\Exceptions\InvalidDepositException;
-use App\Exceptions\InvalidTransferException;
+use App\Domains\Transaction\DTOs\DepositDTO;
+use App\Domains\Transaction\DTOs\TransferDTO;
+use App\Domains\Transaction\Exceptions\InvalidDepositException;
+use App\Domains\Transaction\Exceptions\InvalidTransferException;
+use App\Domains\Transaction\Resources\TransactionResource;
+use App\Domains\Transaction\Services\TransactionService;
 use App\Http\Requests\DepositRequest;
 use App\Http\Requests\TransferRequest;
-use App\Http\Resources\TransactionResource;
 use App\Http\Responses\JsonResponse;
-use App\Services\TransactionService;
 use Illuminate\Http\JsonResponse as BaseJsonResponse;
 
 class TransactionController extends Controller
