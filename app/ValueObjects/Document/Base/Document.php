@@ -12,7 +12,7 @@ abstract readonly class Document implements JsonSerializable, Stringable
 {
     protected readonly string $value;
 
-    public function __construct(string $value)
+    final public function __construct(string $value)
     {
         $cleanValue = $this->clean($value);
 
