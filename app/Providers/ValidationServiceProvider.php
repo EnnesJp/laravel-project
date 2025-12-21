@@ -15,7 +15,7 @@ class ValidationServiceProvider extends ServiceProvider
         $this->app->bind(ValidationAdapterInterface::class, function () {
             return new HttpValidationAdapter(
                 baseUrl: config('validation.service.url'),
-                timeoutSeconds: config('validation.service.timeout', 10)
+                timeoutSeconds: (int) config('validation.service.timeout', 10)
             );
         });
     }
