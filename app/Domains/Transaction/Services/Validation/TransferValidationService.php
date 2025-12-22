@@ -20,7 +20,7 @@ class TransferValidationService
     /**
      * @throws InvalidTransferException
      */
-    public function validateTransfer(TransferDTO $dto, int $currentUserId): void
+    public function validateTransferData(TransferDTO $dto, int $currentUserId): void
     {
         $this->validateTransferAmount($dto->amount);
         $this->validateTransferParticipants($dto->payer, $dto->payee);

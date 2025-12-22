@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Domains\Transaction\DTOs\DepositDTO;
 use App\Domains\Transaction\DTOs\TransferDTO;
+use App\Domains\Transaction\Exceptions\ExternalValidationException;
 use App\Domains\Transaction\Exceptions\InvalidDepositException;
 use App\Domains\Transaction\Exceptions\InvalidTransferException;
 use App\Domains\Transaction\Resources\TransactionResource;
@@ -63,6 +64,12 @@ class TransactionController extends Controller
             );
 
         } catch (InvalidTransferException $e) {
+            return JsonResponse::error(
+                $e->getMessage(),
+                ['error' => $e->getMessage()],
+                $e->getCode()
+            );
+        } catch (ExternalValidationException $e) {
             return JsonResponse::error(
                 $e->getMessage(),
                 ['error' => $e->getMessage()],

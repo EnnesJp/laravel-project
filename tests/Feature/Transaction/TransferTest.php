@@ -6,6 +6,7 @@ use App\Domains\Transaction\Enums\TransactionType;
 use App\Domains\Transaction\Models\Credit;
 use App\Domains\Transaction\Models\Transaction;
 use App\Domains\User\Enums\UserRole;
+use Tests\Helpers\MockValidationHelper;
 use Tests\Traits\CreatesUsers;
 
 uses(CreatesUsers::class);
@@ -28,6 +29,10 @@ function createUserWithBalance(UserRole $role, int $balance): \App\Domains\User\
 
     return $user;
 }
+
+beforeEach(function () {
+    MockValidationHelper::bindSuccessfulMock();
+});
 
 it('allows user to make transfer with sufficient balance', function () {
     $payer = createUserWithBalance(UserRole::USER, 10000);
@@ -98,6 +103,35 @@ it('allows admin to make transfer', function () {
             'success' => true,
             'message' => 'Transfer processed successfully',
         ]);
+});
+
+it('rejects transfer when external validation fails', function () {
+    $reason = 'Suspicious transaction detected';
+    MockValidationHelper::bindFailingMock($reason);
+
+    $payer = createUserWithBalance(UserRole::USER, 10000);
+    $payee = $this->createRegularUser();
+
+    $response = $this->actingAs($payer)
+        ->postJson('/api/v1/transfer', [
+            'value' => 5000,
+            'payer' => $payer->id,
+            'payee' => $payee->id,
+        ]);
+
+    $response->assertStatus(422)
+        ->assertJson([
+            'success' => false,
+            'errors'  => [
+                'error' => 'External validation failed: ' . $reason,
+            ],
+        ]);
+
+    $this->assertDatabaseMissing('transactions', [
+        'payer_user_id' => $payer->id,
+        'payee_user_id' => $payee->id,
+        'type'          => 'transfer',
+    ]);
 });
 
 it('prevents seller from making transfer', function () {

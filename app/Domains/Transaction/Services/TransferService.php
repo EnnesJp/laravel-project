@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domains\Transaction\Services;
 
+use App\Domains\Transaction\Adapters\Contracts\ValidationAdapterInterface;
 use App\Domains\Transaction\DTOs\CreateTransactionDTO;
 use App\Domains\Transaction\DTOs\TransferDTO;
 use App\Domains\Transaction\Enums\TransactionType;
+use App\Domains\Transaction\Exceptions\ExternalValidationException;
 use App\Domains\Transaction\Exceptions\InvalidTransferException;
 use App\Domains\Transaction\Models\Transaction;
 use App\Domains\Transaction\Repositories\Contracts\TransactionRepositoryInterface;
@@ -20,16 +22,18 @@ class TransferService
         private readonly TransactionRepositoryInterface $repository,
         private readonly CreditService $creditService,
         private readonly DebitService $debitService,
-        private readonly BalanceService $balanceService
+        private readonly BalanceService $balanceService,
+        private readonly ValidationAdapterInterface $externalValidation
     ) {
     }
 
     /**
      * @throws InvalidTransferException
+     * @throws ExternalValidationException
      */
     public function transfer(TransferDTO $dto, int $currentUserId): Transaction
     {
-        $this->validationService->validateTransfer($dto, $currentUserId);
+        $this->validationService->validateTransferData($dto, $currentUserId);
 
         return DB::transaction(function () use ($dto) {
             $transactionDTO = new CreateTransactionDTO(
@@ -48,6 +52,8 @@ class TransferService
             );
 
             $this->debitService->bulkCreateDebits($debitsToCreate);
+
+            $this->externalValidation->validateTransfer($dto);
 
             return $this->repository->findByIdWithRelations(
                 $transaction->id,
