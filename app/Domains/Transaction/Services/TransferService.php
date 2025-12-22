@@ -8,6 +8,7 @@ use App\Domains\Transaction\Adapters\Contracts\ValidationAdapterInterface;
 use App\Domains\Transaction\DTOs\CreateTransactionDTO;
 use App\Domains\Transaction\DTOs\TransferDTO;
 use App\Domains\Transaction\Enums\TransactionType;
+use App\Domains\Transaction\Events\TransactionFailed;
 use App\Domains\Transaction\Exceptions\ExternalValidationException;
 use App\Domains\Transaction\Exceptions\InvalidTransferException;
 use App\Domains\Transaction\Models\Transaction;
@@ -23,7 +24,8 @@ class TransferService
         private readonly CreditService $creditService,
         private readonly DebitService $debitService,
         private readonly BalanceService $balanceService,
-        private readonly ValidationAdapterInterface $externalValidation
+        private readonly ValidationAdapterInterface $externalValidation,
+        private readonly BalanceCacheService $cacheService
     ) {
     }
 
@@ -35,7 +37,9 @@ class TransferService
     {
         $this->validationService->validateTransferData($dto, $currentUserId);
 
-        return DB::transaction(function () use ($dto) {
+        try {
+            DB::beginTransaction();
+
             $transactionDTO = new CreateTransactionDTO(
                 payerUserId: $dto->payer,
                 payeeUserId: $dto->payee,
@@ -45,7 +49,7 @@ class TransferService
 
             $this->creditService->createCredit($transaction->id, $dto->amount);
 
-            $debitsToCreate = $this->balanceService->calculateDebitsFromBalance(
+            $debitsToCreate = $this->balanceService->calculateDebits(
                 $dto->payer,
                 $dto->amount,
                 $transaction
@@ -55,10 +59,19 @@ class TransferService
 
             $this->externalValidation->validateTransfer($dto);
 
+            $this->cacheService->updateUserBalance($dto->payer, -$dto->amount);
+            $this->cacheService->updateUserBalance($dto->payee, $dto->amount);
+
+            DB::commit();
+
             return $this->repository->findByIdWithRelations(
                 $transaction->id,
                 ['credits', 'debits']
             );
-        });
+        } catch (\Exception $e) {
+            DB::rollBack();
+            event(new TransactionFailed($dto->payer, $dto->payee));
+            throw $e;
+        }
     }
 }

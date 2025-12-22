@@ -13,7 +13,8 @@ use Illuminate\Support\Collection;
 class BalanceService
 {
     public function __construct(
-        private readonly RemainingCreditRepositoryInterface $repository
+        private readonly RemainingCreditRepositoryInterface $repository,
+        private readonly BalanceCacheService $cacheService
     ) {
     }
 
@@ -21,14 +22,15 @@ class BalanceService
      * @throws InvalidTransferException
      * @return Collection<int, CreateDebitDTO>
      */
-    public function calculateDebitsFromBalance(int $userId, int $amount, Transaction $transaction): Collection
+    public function calculateDebits(int $userId, int $amount, Transaction $transaction): Collection
     {
-        $availableCredits = $this->repository->getRemainingCreditsByUserId($userId);
-        $availableBalance = $availableCredits->sum('remaining');
+        $availableBalance = $this->cacheService->getUserBalance($userId);
 
         if ($availableBalance < $amount) {
             throw InvalidTransferException::insufficientBalance($availableBalance, $amount);
         }
+
+        $availableCredits = $this->repository->getRemainingCreditsByUserId($userId);
 
         $debitsToCreate  = collect();
         $remainingAmount = $amount;

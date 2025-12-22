@@ -7,6 +7,7 @@ namespace App\Domains\Transaction\Services;
 use App\Domains\Transaction\DTOs\CreateTransactionDTO;
 use App\Domains\Transaction\DTOs\DepositDTO;
 use App\Domains\Transaction\Enums\TransactionType;
+use App\Domains\Transaction\Events\TransactionFailed;
 use App\Domains\Transaction\Exceptions\InvalidDepositException;
 use App\Domains\Transaction\Models\Transaction;
 use App\Domains\Transaction\Repositories\Contracts\TransactionRepositoryInterface;
@@ -19,7 +20,8 @@ class DepositService
         private readonly DepositValidationService $validationService,
         private readonly TransactionRepositoryInterface $repository,
         private readonly CreditService $creditService,
-        private readonly DebitService $debitService
+        private readonly DebitService $debitService,
+        private readonly BalanceCacheService $cacheService
     ) {
     }
 
@@ -30,7 +32,9 @@ class DepositService
     {
         $this->validationService->validateDeposit($dto);
 
-        return DB::transaction(function () use ($dto) {
+        try {
+            DB::beginTransaction();
+
             $transactionDTO = new CreateTransactionDTO(
                 payerUserId: $dto->payer,
                 payeeUserId: $dto->payee,
@@ -41,10 +45,17 @@ class DepositService
             $this->creditService->createCredit($transaction->id, $dto->amount);
             $this->debitService->createFundDebit($transaction->id, $dto->amount);
 
+            $this->cacheService->updateUserBalance($dto->payee, $dto->amount);
+
+            DB::commit();
             return $this->repository->findByIdWithRelations(
                 $transaction->id,
                 ['credits', 'debits']
             );
-        });
+        } catch (\Exception $e) {
+            DB::rollBack();
+            event(new TransactionFailed($dto->payer, $dto->payee));
+            throw $e;
+        }
     }
 }
