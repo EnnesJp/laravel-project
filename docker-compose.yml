@@ -13,6 +13,7 @@ services:
     depends_on:
       - db
       - mailpit
+      - redis
 
   nginx:
     image: nginx:alpine
@@ -55,10 +56,24 @@ services:
     networks:
       - laravel
 
+  redis:
+    image: redis:7-alpine
+    container_name: laravel-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - laravel
+    command: redis-server --appendonly yes
+
 networks:
   laravel:
     driver: bridge
 
 volumes:
   mysql_data:
+    driver: local
+  redis_data:
     driver: local

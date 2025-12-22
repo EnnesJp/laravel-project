@@ -24,11 +24,7 @@ class BalanceService
      */
     public function calculateDebits(int $userId, int $amount, Transaction $transaction): Collection
     {
-        $availableBalance = $this->cacheService->getUserBalance($userId);
-
-        if ($availableBalance < $amount) {
-            throw InvalidTransferException::insufficientBalance($availableBalance, $amount);
-        }
+        $this->validateUserBalance($userId, $amount);
 
         $availableCredits = $this->repository->getRemainingCreditsByUserId($userId);
 
@@ -53,5 +49,17 @@ class BalanceService
         }
 
         return $debitsToCreate;
+    }
+
+    /**
+     * @throws InvalidTransferException
+     */
+    private function validateUserBalance(int $userId, int $amount): void
+    {
+        $availableBalance = $this->cacheService->getUserBalance($userId);
+
+        if ($availableBalance < $amount) {
+            throw InvalidTransferException::insufficientBalance($availableBalance, $amount);
+        }
     }
 }
