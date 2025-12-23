@@ -26,8 +26,6 @@ class TransactionService
     {
         try {
             return $this->depositService->deposit($dto);
-        } catch (InvalidDepositException $e) {
-            throw $e;
         } catch (\Exception $e) {
             event(new TransactionFailed($dto->payee, $dto->payer));
             throw $e;
@@ -41,8 +39,6 @@ class TransactionService
     {
         try {
             return $this->transferService->transfer($dto, $currentUserId);
-        } catch (InvalidTransferException $e) {
-            throw $e;
         } catch (\Exception $e) {
             event(new TransactionFailed($dto->payee, $dto->payer));
             throw $e;

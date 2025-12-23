@@ -10,6 +10,8 @@ class RepositoryServiceProvider extends ServiceProvider
 {
     /**
      * Repository mappings - only define exceptions to the convention here
+     *
+     * @var array<string, string>
      */
     private array $customMappings = [
         'App\Repositories\Contracts\CacheRepositoryInterface' => 'App\Repositories\RedisCacheRepository',
@@ -17,6 +19,8 @@ class RepositoryServiceProvider extends ServiceProvider
 
     /**
      * Interfaces namespaces to scan
+     *
+     * @var array<string, string>
      */
     private array $interfaceNamespaces = [
         'Repositories/Contracts'                     => 'App\Repositories\Contracts',
@@ -26,6 +30,8 @@ class RepositoryServiceProvider extends ServiceProvider
 
     /**
      * Repository namespaces to scan
+     *
+     * @var array<string>
      */
     private array $repositoryNamespaces = [
         'App\Repositories',
