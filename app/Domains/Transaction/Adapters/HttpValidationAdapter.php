@@ -27,7 +27,7 @@ class HttpValidationAdapter implements ValidationAdapterInterface
         try {
             /** @var Response $response */
             $response = Http::timeout($this->timeoutSeconds)
-                ->post("{$this->baseUrl}/validate-transfer", [
+                ->get("{$this->baseUrl}/authorize", [
                     'payer_id' => $dto->payer,
                     'payee_id' => $dto->payee,
                     'amount'   => $dto->amount,

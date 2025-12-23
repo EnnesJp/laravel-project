@@ -34,9 +34,4 @@ return [
             'channel'              => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-
-    'validation' => [
-        'url'     => env('EXTERNAL_VALIDATION_SERVICE_URL'),
-        'timeout' => env('EXTERNAL_VALIDATION_TIMEOUT', 10),
-    ],
 ];

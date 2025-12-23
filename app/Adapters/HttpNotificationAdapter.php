@@ -29,7 +29,8 @@ class HttpNotificationAdapter implements NotificationAdapterInterface
 
         try {
             /** @var Response $response */
-            $response = Http::timeout($this->timeoutSeconds)->post($this->baseUrl, $payload);
+            $response = Http::timeout($this->timeoutSeconds)
+                ->post("{$this->baseUrl}/notify", $payload);
 
             $statusCode = $response->status();
             if ($statusCode >= 400) {
