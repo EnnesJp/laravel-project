@@ -8,7 +8,6 @@ use App\Domains\Transaction\Adapters\Contracts\ValidationAdapterInterface;
 use App\Domains\Transaction\DTOs\CreateTransactionDTO;
 use App\Domains\Transaction\DTOs\TransferDTO;
 use App\Domains\Transaction\Enums\TransactionType;
-use App\Domains\Transaction\Events\TransactionFailed;
 use App\Domains\Transaction\Exceptions\ExternalValidationException;
 use App\Domains\Transaction\Exceptions\InvalidTransferException;
 use App\Domains\Transaction\Models\Transaction;
@@ -37,38 +36,33 @@ class TransferService
     {
         $this->validationService->validateTransferData($dto, $currentUserId);
 
-        try {
-            return DB::transaction(function () use ($dto) {
-                $transactionDTO = new CreateTransactionDTO(
-                    payerUserId: $dto->payer,
-                    payeeUserId: $dto->payee,
-                    type: TransactionType::TRANSFER
-                );
-                $transaction = $this->repository->create($transactionDTO);
+        return DB::transaction(function () use ($dto) {
+            $transactionDTO = new CreateTransactionDTO(
+                payerUserId: $dto->payer,
+                payeeUserId: $dto->payee,
+                type: TransactionType::TRANSFER
+            );
+            $transaction = $this->repository->create($transactionDTO);
 
-                $this->creditService->createCredit($transaction->id, $dto->amount);
+            $this->creditService->createCredit($transaction->id, $dto->amount);
 
-                $debitsToCreate = $this->balanceService->calculateDebits(
-                    $dto->payer,
-                    $dto->amount,
-                    $transaction
-                );
+            $debitsToCreate = $this->balanceService->calculateDebits(
+                $dto->payer,
+                $dto->amount,
+                $transaction
+            );
 
-                $this->debitService->bulkCreateDebits($debitsToCreate);
+            $this->debitService->bulkCreateDebits($debitsToCreate);
 
-                $this->externalValidation->validateTransfer($dto);
+            $this->externalValidation->validateTransfer($dto);
 
-                $this->cacheService->updateUserBalance($dto->payer, -$dto->amount);
-                $this->cacheService->updateUserBalance($dto->payee, $dto->amount);
+            $this->cacheService->updateUserBalance($dto->payer, -$dto->amount);
+            $this->cacheService->updateUserBalance($dto->payee, $dto->amount);
 
-                return $this->repository->findByIdWithRelations(
-                    $transaction->id,
-                    ['credits', 'debits']
-                );
-            });
-        } catch (\Exception $e) {
-            event(new TransactionFailed($dto->payee, $dto->payer));
-            throw $e;
-        }
+            return $this->repository->findByIdWithRelations(
+                $transaction->id,
+                ['credits', 'debits']
+            );
+        });
     }
 }

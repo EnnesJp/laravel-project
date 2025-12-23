@@ -6,6 +6,7 @@ namespace App\Domains\Transaction\Services;
 
 use App\Domains\Transaction\DTOs\DepositDTO;
 use App\Domains\Transaction\DTOs\TransferDTO;
+use App\Domains\Transaction\Events\TransactionFailed;
 use App\Domains\Transaction\Exceptions\InvalidDepositException;
 use App\Domains\Transaction\Exceptions\InvalidTransferException;
 use App\Domains\Transaction\Models\Transaction;
@@ -23,7 +24,14 @@ class TransactionService
      */
     public function deposit(DepositDTO $dto): Transaction
     {
-        return $this->depositService->deposit($dto);
+        try {
+            return $this->depositService->deposit($dto);
+        } catch (InvalidDepositException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            event(new TransactionFailed($dto->payee, $dto->payer));
+            throw $e;
+        }
     }
 
     /**
@@ -31,6 +39,13 @@ class TransactionService
      */
     public function transfer(TransferDTO $dto, int $currentUserId): Transaction
     {
-        return $this->transferService->transfer($dto, $currentUserId);
+        try {
+            return $this->transferService->transfer($dto, $currentUserId);
+        } catch (InvalidTransferException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            event(new TransactionFailed($dto->payee, $dto->payer));
+            throw $e;
+        }
     }
 }

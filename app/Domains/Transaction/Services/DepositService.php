@@ -7,7 +7,6 @@ namespace App\Domains\Transaction\Services;
 use App\Domains\Transaction\DTOs\CreateTransactionDTO;
 use App\Domains\Transaction\DTOs\DepositDTO;
 use App\Domains\Transaction\Enums\TransactionType;
-use App\Domains\Transaction\Events\TransactionFailed;
 use App\Domains\Transaction\Exceptions\InvalidDepositException;
 use App\Domains\Transaction\Models\Transaction;
 use App\Domains\Transaction\Repositories\Contracts\TransactionRepositoryInterface;
@@ -32,28 +31,23 @@ class DepositService
     {
         $this->validationService->validateDeposit($dto);
 
-        try {
-            return DB::transaction(function () use ($dto) {
-                $transactionDTO = new CreateTransactionDTO(
-                    payerUserId: $dto->payer,
-                    payeeUserId: $dto->payee,
-                    type: TransactionType::DEPOSIT
-                );
-                $transaction = $this->repository->create($transactionDTO);
+        return DB::transaction(function () use ($dto) {
+            $transactionDTO = new CreateTransactionDTO(
+                payerUserId: $dto->payer,
+                payeeUserId: $dto->payee,
+                type: TransactionType::DEPOSIT
+            );
+            $transaction = $this->repository->create($transactionDTO);
 
-                $this->creditService->createCredit($transaction->id, $dto->amount);
-                $this->debitService->createFundDebit($transaction->id, $dto->amount);
+            $this->creditService->createCredit($transaction->id, $dto->amount);
+            $this->debitService->createFundDebit($transaction->id, $dto->amount);
 
-                $this->cacheService->updateUserBalance($dto->payee, $dto->amount);
+            $this->cacheService->updateUserBalance($dto->payee, $dto->amount);
 
-                return $this->repository->findByIdWithRelations(
-                    $transaction->id,
-                    ['credits', 'debits']
-                );
-            });
-        } catch (\Exception $e) {
-            event(new TransactionFailed($dto->payee));
-            throw $e;
-        }
+            return $this->repository->findByIdWithRelations(
+                $transaction->id,
+                ['credits', 'debits']
+            );
+        });
     }
 }
