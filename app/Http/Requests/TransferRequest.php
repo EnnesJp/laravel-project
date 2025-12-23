@@ -20,7 +20,7 @@ class TransferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'value' => ['required', 'integer'],
+            'value' => ['required', 'numeric', 'min:0.01'],
             'payee' => ['required', 'integer'],
             'payer' => ['required', 'integer'],
         ];
@@ -33,9 +33,32 @@ class TransferRequest extends FormRequest
     {
         return [
             'value.required' => 'The amount field is required.',
-            'value.integer'  => 'The amount must be an integer.',
+            'value.numeric'  => 'The amount must be a valid number.',
+            'value.min'      => 'The amount must be at least 0.01.',
             'payee.required' => 'The payee field is required.',
             'payer.required' => 'The payer field is required.',
         ];
+    }
+
+    /**
+     * Get the validated data from the request with amount converted to cents.
+     *
+     * @param string|null $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public function validated($key = null, $default = null)
+    {
+        $validated = parent::validated($key, $default);
+
+        if ($key === 'value') {
+            return (int) round($validated * 100);
+        }
+
+        if ($key === null && isset($validated['value'])) {
+            $validated['value'] = (int) round($validated['value'] * 100);
+        }
+
+        return $validated;
     }
 }

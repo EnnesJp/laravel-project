@@ -19,7 +19,7 @@ it('allows admin to make deposit', function () {
 
     $response = $this->actingAs($admin)
         ->postJson('/api/v1/deposit', [
-            'value' => 10000,
+            'value' => 100.00,
             'payer' => $externalFund->id,
             'payee' => $user->id,
         ]);
@@ -69,7 +69,7 @@ it('allows external fund user to make deposit', function () {
 
     $response = $this->actingAs($externalFund)
         ->postJson('/api/v1/deposit', [
-            'value' => 5000,
+            'value' => 50.00,
             'payer' => $anotherExternalFund->id,
             'payee' => $user->id,
         ]);
@@ -88,7 +88,7 @@ it('prevents regular user from making deposit', function () {
 
     $response = $this->actingAs($user)
         ->postJson('/api/v1/deposit', [
-            'value' => 10000,
+            'value' => 100.00,
             'payer' => $externalFund->id,
             'payee' => $payee->id,
         ]);
@@ -101,7 +101,7 @@ it('requires authentication for deposit', function () {
     $user         = $this->createRegularUser();
 
     $response = $this->postJson('/api/v1/deposit', [
-        'value' => 10000,
+        'value' => 100.00,
         'payer' => $externalFund->id,
         'payee' => $user->id,
     ]);
@@ -135,9 +135,7 @@ it('validates amount is positive for deposit', function () {
         ]);
 
     $response->assertStatus(422)
-        ->assertJsonValidationErrors([
-            'error' => 'Invalid deposit amount: -100. Amount must be greater than 0',
-        ]);
+        ->assertJsonValidationErrors(['value']);
 });
 
 it('validates payer and payee are different for deposit', function () {
@@ -146,7 +144,7 @@ it('validates payer and payee are different for deposit', function () {
 
     $response = $this->actingAs($admin)
         ->postJson('/api/v1/deposit', [
-            'value' => 10000,
+            'value' => 100.00,
             'payer' => $user->id,
             'payee' => $user->id,
         ]);
@@ -162,7 +160,7 @@ it('validates users exist for deposit', function () {
 
     $response = $this->actingAs($admin)
         ->postJson('/api/v1/deposit', [
-            'value' => 10000,
+            'value' => 100.00,
             'payer' => 999,
             'payee' => 998,
         ]);
@@ -180,7 +178,7 @@ it('fails when payer is not external fund for deposit', function () {
 
     $response = $this->actingAs($admin)
         ->postJson('/api/v1/deposit', [
-            'value' => 10000,
+            'value' => 100.00,
             'payer' => $regularUser->id,
             'payee' => $payee->id,
         ]);
@@ -198,7 +196,7 @@ it('fails when payee is external fund for deposit', function () {
 
     $response = $this->actingAs($admin)
         ->postJson('/api/v1/deposit', [
-            'value' => 10000,
+            'value' => 100.00,
             'payer' => $externalFund->id,
             'payee' => $anotherExternalFund->id,
         ]);
