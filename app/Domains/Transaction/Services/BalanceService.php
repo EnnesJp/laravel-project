@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domains\Transaction\Services;
 
-use App\Domains\Transaction\DTOs\CreateDebitDTO;
 use App\Domains\Transaction\Exceptions\InvalidTransferException;
-use App\Domains\Transaction\Models\Transaction;
+use App\Domains\Transaction\Models\RemainingCredit;
 use App\Domains\Transaction\Repositories\Contracts\RemainingCreditRepositoryInterface;
 use Illuminate\Support\Collection;
 
@@ -19,42 +18,17 @@ class BalanceService
     }
 
     /**
-     * @throws InvalidTransferException
-     * @return Collection<int, CreateDebitDTO>
+     * @return Collection<int, RemainingCredit>
      */
-    public function calculateDebits(int $userId, int $amount, Transaction $transaction): Collection
+    public function getRemainingCredits(int $userId): Collection
     {
-        $this->validateUserBalance($userId, $amount);
-
-        $availableCredits = $this->repository->getRemainingCreditsByUserId($userId);
-
-        $debitsToCreate  = collect();
-        $remainingAmount = $amount;
-
-        foreach ($availableCredits as $credit) {
-            if ($remainingAmount <= 0) {
-                break;
-            }
-
-            $debitAmount = min($remainingAmount, $credit->remaining);
-
-            $debitDTO = new CreateDebitDTO(
-                transactionId: $transaction->id,
-                creditId: $credit->credit_id,
-                amount: $debitAmount
-            );
-
-            $debitsToCreate->push($debitDTO);
-            $remainingAmount -= $debitAmount;
-        }
-
-        return $debitsToCreate;
+        return $this->repository->getRemainingCreditsByUserId($userId);
     }
 
     /**
      * @throws InvalidTransferException
      */
-    private function validateUserBalance(int $userId, int $amount): void
+    public function validateUserBalance(int $userId, int $amount): void
     {
         $availableBalance = $this->cacheService->getUserBalance($userId);
 

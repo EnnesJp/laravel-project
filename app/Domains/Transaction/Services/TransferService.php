@@ -22,9 +22,7 @@ class TransferService
         private readonly TransactionRepositoryInterface $repository,
         private readonly CreditService $creditService,
         private readonly DebitService $debitService,
-        private readonly BalanceService $balanceService,
-        private readonly ValidationAdapterInterface $externalValidation,
-        private readonly BalanceCacheService $cacheService
+        private readonly ValidationAdapterInterface $externalValidation
     ) {
     }
 
@@ -46,18 +44,13 @@ class TransferService
 
             $this->creditService->createCredit($transaction->id, $dto->amount);
 
-            $debitsToCreate = $this->balanceService->calculateDebits(
+            $this->debitService->createDebits(
                 $dto->payer,
                 $dto->amount,
-                $transaction
+                $transaction->id
             );
 
-            $this->debitService->bulkCreateDebits($debitsToCreate);
-
             $this->externalValidation->validateTransfer($dto);
-
-            $this->cacheService->updateUserBalance($dto->payer, -$dto->amount);
-            $this->cacheService->updateUserBalance($dto->payee, $dto->amount);
 
             return $this->repository->findByIdWithRelations(
                 $transaction->id,

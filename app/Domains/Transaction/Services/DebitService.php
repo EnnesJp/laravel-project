@@ -16,7 +16,8 @@ class DebitService
 {
     public function __construct(
         private readonly DebitRepositoryInterface $debitRepository,
-        private readonly FundDebitRepositoryInterface $fundDebitRepository
+        private readonly FundDebitRepositoryInterface $fundDebitRepository,
+        private readonly BalanceService $balanceService
     ) {
     }
 
@@ -39,6 +40,48 @@ class DebitService
         );
 
         return $this->debitRepository->create($debitDTO);
+    }
+
+    public function createDebits(int $userId, int $amount, int $transactionId): void
+    {
+        $debitsToCreate = $this->calculateDebits(
+            $userId,
+            $amount,
+            $transactionId
+        );
+
+        $this->bulkCreateDebits($debitsToCreate);
+    }
+
+    /**
+     * @return Collection<int, CreateDebitDTO>
+     */
+    public function calculateDebits(int $userId, int $amount, int $transactionId): Collection
+    {
+        $this->balanceService->validateUserBalance($userId, $amount);
+        $availableCredits = $this->balanceService->getRemainingCredits($userId);
+
+        $debitsToCreate  = collect();
+        $remainingAmount = $amount;
+
+        foreach ($availableCredits as $credit) {
+            if ($remainingAmount <= 0) {
+                break;
+            }
+
+            $debitAmount = min($remainingAmount, $credit->remaining);
+
+            $debitDTO = new CreateDebitDTO(
+                transactionId: $transactionId,
+                creditId: $credit->credit_id,
+                amount: $debitAmount
+            );
+
+            $debitsToCreate->push($debitDTO);
+            $remainingAmount -= $debitAmount;
+        }
+
+        return $debitsToCreate;
     }
 
     /**

@@ -2,7 +2,6 @@
 <phpmd-baseline>
   <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="app/Domains/Transaction/Adapters/Mocks/MockValidationAdapter.php"/>
   <violation rule="PHPMD\Rule\UnusedFormalParameter" file="app/Domains/Transaction/Resources/TransactionResource.php"/>
-  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="app/Domains/Transaction/Services/TransferService.php"/>
   <violation rule="PHPMD\Rule\UnusedFormalParameter" file="app/Domains/User/Resources/LoginResource.php"/>
   <violation rule="PHPMD\Rule\UnusedFormalParameter" file="app/Domains/User/Resources/UserResource.php"/>
   <violation rule="PHPMD\Rule\UnusedFormalParameter" file="app/Rules/DocumentRule.php"/>

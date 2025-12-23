@@ -19,8 +19,7 @@ class DepositService
         private readonly DepositValidationService $validationService,
         private readonly TransactionRepositoryInterface $repository,
         private readonly CreditService $creditService,
-        private readonly DebitService $debitService,
-        private readonly BalanceCacheService $cacheService
+        private readonly DebitService $debitService
     ) {
     }
 
@@ -41,8 +40,6 @@ class DepositService
 
             $this->creditService->createCredit($transaction->id, $dto->amount);
             $this->debitService->createFundDebit($transaction->id, $dto->amount);
-
-            $this->cacheService->updateUserBalance($dto->payee, $dto->amount);
 
             return $this->repository->findByIdWithRelations(
                 $transaction->id,
