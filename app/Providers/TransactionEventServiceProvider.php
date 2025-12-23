@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Domains\Transaction\Events\TransactionFailed;
+use App\Domains\Transaction\Events\TransactionSuccess;
 use App\Domains\Transaction\Listeners\InvalidateBalanceCache;
+use App\Domains\Transaction\Listeners\SendTransactionSuccessNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class TransactionEventServiceProvider extends ServiceProvider
@@ -18,6 +20,9 @@ class TransactionEventServiceProvider extends ServiceProvider
     protected $listen = [
         TransactionFailed::class => [
             InvalidateBalanceCache::class,
+        ],
+        TransactionSuccess::class => [
+            SendTransactionSuccessNotification::class,
         ],
     ];
 
