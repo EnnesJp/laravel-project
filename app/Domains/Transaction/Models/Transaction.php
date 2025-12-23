@@ -33,7 +33,7 @@ class Transaction extends Model
         return $this->belongsTo(User::class, 'payee_user_id');
     }
 
-    public function credits(): HasOne
+    public function credit(): HasOne
     {
         return $this->hasOne(Credit::class, 'transaction_id');
     }

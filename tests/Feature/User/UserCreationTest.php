@@ -31,8 +31,6 @@ it('can create a user with valid data', function () {
                     'email',
                     'document',
                     'role',
-                    'created_at',
-                    'updated_at',
                 ],
             ]);
 

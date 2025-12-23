@@ -10,7 +10,10 @@ class InvalidTransferException extends InvalidActionBaseException
 {
     public static function insufficientBalance(int $available, int $required): static
     {
-        return new static("Insufficient balance. Available: {$available}, Required: {$required}");
+        $formattedAvailable = number_format($available / 100, 2, ',', '.');
+        $formattedRequired  = number_format($required / 100, 2, ',', '.');
+
+        return new static("Insufficient balance. Available: {$formattedAvailable}, Required: {$formattedRequired}");
     }
 
     public static function invalidPayerRole(string $userRole): static
