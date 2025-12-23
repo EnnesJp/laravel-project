@@ -13,8 +13,8 @@ class TransactionFailed
     use SerializesModels;
 
     public function __construct(
-        public readonly int $payerUserId,
-        public readonly ?int $payeeUserId = null
+        public readonly int $payeeUserId,
+        public readonly ?int $payerUserId = null
     ) {
     }
 }

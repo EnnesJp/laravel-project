@@ -52,7 +52,7 @@ class DepositService
                 );
             });
         } catch (\Exception $e) {
-            event(new TransactionFailed($dto->payer, $dto->payee));
+            event(new TransactionFailed($dto->payee));
             throw $e;
         }
     }

@@ -67,7 +67,7 @@ class TransferService
                 );
             });
         } catch (\Exception $e) {
-            event(new TransactionFailed($dto->payer, $dto->payee));
+            event(new TransactionFailed($dto->payee, $dto->payer));
             throw $e;
         }
     }
