@@ -20,6 +20,9 @@ class TransactionSuccessNotificationDTO extends NotificationDTO
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

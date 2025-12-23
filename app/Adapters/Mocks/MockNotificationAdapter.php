@@ -10,18 +10,15 @@ use Illuminate\Support\Facades\Log;
 
 class MockNotificationAdapter implements NotificationAdapterInterface
 {
-    public function __construct(
-        private readonly bool $shouldLog = true
-    ) {
+    public function __construct()
+    {
     }
 
     public function send(NotificationDTO $notification): void
     {
-        if ($this->shouldLog) {
-            Log::info('Mock notification sent', [
-                'type'    => $notification->type,
-                'payload' => $notification->toArray(),
-            ]);
-        }
+        Log::info('Mock notification sent', [
+            'type'    => $notification->type,
+            'payload' => $notification->toArray(),
+        ]);
     }
 }

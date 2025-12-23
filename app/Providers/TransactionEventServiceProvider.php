@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Domains\Transaction\Events\TransactionFailed;
 use App\Domains\Transaction\Events\TransactionSuccess;
 use App\Domains\Transaction\Listeners\InvalidateBalanceCache;
+use App\Domains\Transaction\Listeners\RefreshBalanceCache;
 use App\Domains\Transaction\Listeners\SendTransactionSuccessNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -22,6 +23,7 @@ class TransactionEventServiceProvider extends ServiceProvider
             InvalidateBalanceCache::class,
         ],
         TransactionSuccess::class => [
+            RefreshBalanceCache::class,
             SendTransactionSuccessNotification::class,
         ],
     ];

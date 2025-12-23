@@ -12,6 +12,9 @@ abstract class NotificationDTO
     ) {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     abstract public function toArray(): array;
 
     protected static function now(): string
