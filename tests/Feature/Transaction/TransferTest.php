@@ -25,7 +25,7 @@ function createUserWithBalance(UserRole $role, int $balance): \App\Domains\User\
 
     Credit::create([
         'transaction_id' => $transaction->id,
-        'amount'         => $balance,
+        'amount'         => $balance * 100,
     ]);
 
     return $user;
@@ -37,12 +37,12 @@ beforeEach(function () {
 });
 
 it('allows user to make transfer with sufficient balance', function () {
-    $payer = createUserWithBalance(UserRole::USER, 10000);
+    $payer = createUserWithBalance(UserRole::USER, 100);
     $payee = $this->createRegularUser();
 
     $response = $this->actingAs($payer)
         ->postJson('/api/v1/transfer', [
-            'value' => 5000,
+            'value' => 50.00,
             'payer' => $payer->id,
             'payee' => $payee->id,
         ]);
@@ -90,12 +90,12 @@ it('allows user to make transfer with sufficient balance', function () {
 });
 
 it('allows admin to make transfer', function () {
-    $admin = createUserWithBalance(UserRole::ADMIN, 15000);
+    $admin = createUserWithBalance(UserRole::ADMIN, 150);
     $payee = $this->createSeller();
 
     $response = $this->actingAs($admin)
         ->postJson('/api/v1/transfer', [
-            'value' => 8000,
+            'value' => 80.00,
             'payer' => $admin->id,
             'payee' => $payee->id,
         ]);
@@ -111,12 +111,12 @@ it('rejects transfer when external validation fails', function () {
     $reason = 'Suspicious transaction detected';
     MockValidationHelper::bindFailingMock($reason);
 
-    $payer = createUserWithBalance(UserRole::USER, 10000);
+    $payer = createUserWithBalance(UserRole::USER, 100);
     $payee = $this->createRegularUser();
 
     $response = $this->actingAs($payer)
         ->postJson('/api/v1/transfer', [
-            'value' => 5000,
+            'value' => 50.00,
             'payer' => $payer->id,
             'payee' => $payee->id,
         ]);
@@ -137,12 +137,12 @@ it('rejects transfer when external validation fails', function () {
 });
 
 it('prevents seller from making transfer', function () {
-    $seller = createUserWithBalance(UserRole::SELLER, 10000);
+    $seller = createUserWithBalance(UserRole::SELLER, 100);
     $payee  = $this->createRegularUser();
 
     $response = $this->actingAs($seller)
         ->postJson('/api/v1/transfer', [
-            'value' => 5000,
+            'value' => 50.00,
             'payer' => $seller->id,
             'payee' => $payee->id,
         ]);
@@ -156,7 +156,7 @@ it('prevents external fund from making transfer', function () {
 
     $response = $this->actingAs($externalFund)
         ->postJson('/api/v1/transfer', [
-            'value' => 5000,
+            'value' => 50.00,
             'payer' => $externalFund->id,
             'payee' => $payee->id,
         ]);
@@ -169,7 +169,7 @@ it('requires authentication for transfer', function () {
     $payee = $this->createRegularUser();
 
     $response = $this->postJson('/api/v1/transfer', [
-        'value' => 5000,
+        'value' => 50.00,
         'payer' => $payer->id,
         'payee' => $payee->id,
     ]);
@@ -191,28 +191,26 @@ it('validates required fields for transfer', function () {
 });
 
 it('validates amount is positive for transfer', function () {
-    $payer = createUserWithBalance(UserRole::USER, 10000);
+    $payer = createUserWithBalance(UserRole::USER, 100);
     $payee = $this->createRegularUser();
 
     $response = $this->actingAs($payer)
         ->postJson('/api/v1/transfer', [
-            'value' => -100,
+            'value' => -100.0,
             'payer' => $payer->id,
             'payee' => $payee->id,
         ]);
 
     $response->assertStatus(422)
-        ->assertJsonValidationErrors([
-            'error' => 'Invalid deposit amount: -100. Amount must be greater than 0',
-        ]);
+        ->assertJsonValidationErrors('value');
 });
 
 it('validates payer and payee are different for transfer', function () {
-    $user = createUserWithBalance(UserRole::USER, 10000);
+    $user = createUserWithBalance(UserRole::USER, 100);
 
     $response = $this->actingAs($user)
         ->postJson('/api/v1/transfer', [
-            'value' => 5000,
+            'value' => 50.00,
             'payer' => $user->id,
             'payee' => $user->id,
         ]);
@@ -228,7 +226,7 @@ it('validates users exist for transfer', function () {
 
     $response = $this->actingAs($user)
         ->postJson('/api/v1/transfer', [
-            'value' => 5000,
+            'value' => 50.00,
             'payer' => $user->id,
             'payee' => 999,
         ]);
@@ -240,12 +238,12 @@ it('validates users exist for transfer', function () {
 });
 
 it('fails with insufficient balance', function () {
-    $payer = createUserWithBalance(UserRole::USER, 1000);
+    $payer = createUserWithBalance(UserRole::USER, 10);
     $payee = $this->createRegularUser();
 
     $response = $this->actingAs($payer)
         ->postJson('/api/v1/transfer', [
-            'value' => 5000,
+            'value' => 50.00,
             'payer' => $payer->id,
             'payee' => $payee->id,
         ]);
@@ -263,7 +261,7 @@ it('fails when payer has invalid role', function () {
 
     $response = $this->actingAs($admin)
         ->postJson('/api/v1/transfer', [
-            'value' => 5000,
+            'value' => 50.00,
             'payer' => $externalFund->id,
             'payee' => $payee->id,
         ]);
@@ -275,12 +273,12 @@ it('fails when payer has invalid role', function () {
 });
 
 it('fails when payee has invalid role', function () {
-    $payer        = createUserWithBalance(UserRole::USER, 10000);
+    $payer        = createUserWithBalance(UserRole::USER, 100);
     $externalFund = $this->createExternalFund();
 
     $response = $this->actingAs($payer)
         ->postJson('/api/v1/transfer', [
-            'value' => 5000,
+            'value' => 50.00,
             'payer' => $payer->id,
             'payee' => $externalFund->id,
         ]);
@@ -311,7 +309,7 @@ it('handles transfer with multiple credits', function () {
 
     $response = $this->actingAs($payer)
         ->postJson('/api/v1/transfer', [
-            'value' => 5000,
+            'value' => 50.00,
             'payer' => $payer->id,
             'payee' => $payee->id,
         ]);
@@ -326,13 +324,13 @@ it('handles transfer with multiple credits', function () {
 });
 
 it('prevents user role from transferring money for others', function () {
-    $user1 = createUserWithBalance(UserRole::USER, 10000);
-    $user2 = createUserWithBalance(UserRole::USER, 5000);
+    $user1 = createUserWithBalance(UserRole::USER, 100);
+    $user2 = createUserWithBalance(UserRole::USER, 50);
     $payee = $this->createRegularUser();
 
     $response = $this->actingAs($user1)
         ->postJson('/api/v1/transfer', [
-            'value' => 3000,
+            'value' => 30.00,
             'payer' => $user2->id,
             'payee' => $payee->id,
         ]);
@@ -345,12 +343,12 @@ it('prevents user role from transferring money for others', function () {
 
 it('allows admin to transfer money for others', function () {
     $admin = $this->createAdmin();
-    $user  = createUserWithBalance(UserRole::USER, 10000);
+    $user  = createUserWithBalance(UserRole::USER, 100);
     $payee = $this->createRegularUser();
 
     $response = $this->actingAs($admin)
         ->postJson('/api/v1/transfer', [
-            'value' => 3000,
+            'value' => 30.0,
             'payer' => $user->id,
             'payee' => $payee->id,
         ]);
