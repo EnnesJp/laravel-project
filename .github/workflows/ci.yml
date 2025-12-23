@@ -92,12 +92,6 @@ jobs:
 
       - name: Run PHPStan
         run: ./vendor/bin/phpstan analyse --error-format=github --memory-limit 2086M --no-progress
-        
-      - name: PHPStan Status Check
-        if: failure()
-        run: |
-          echo "::error::PHPStan analysis failed. Please fix the errors before merging."
-          exit 1
 
   phpmd:
     runs-on: ubuntu-latest
@@ -131,12 +125,6 @@ jobs:
 
       - name: Run PHPMD
         run: ./vendor/bin/phpmd app github phpmd.xml
-        
-      - name: PHPMD Status Check
-        if: failure()
-        run: |
-          echo "::error::PHPMD analysis failed. Please fix the code quality issues before merging."
-          exit 1
 
   arch-tests:
     runs-on: ubuntu-latest
@@ -177,12 +165,6 @@ jobs:
       - name: Run Architecture Tests
         run: ./vendor/bin/pest --testsuite=Arch
 
-      - name: Architecture Tests Status Check
-        if: failure()
-        run: |
-          echo "::error::Architecture tests failed. Please fix the architectural violations before merging."
-          exit 1
-
   feature-tests:
     runs-on: ubuntu-latest
     name: Feature Tests
@@ -193,6 +175,17 @@ jobs:
       pull-requests: write
       checks: write
 
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -201,7 +194,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo, redis
           coverage: xdebug
 
       - name: Restore vendor cache
@@ -230,17 +223,3 @@ jobs:
 
       - name: Run Feature Tests
         run: ./vendor/bin/pest --testsuite=Feature --coverage-text --coverage-clover=coverage.xml
-
-      - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
-
-      - name: Feature Tests Status Check
-        if: failure()
-        run: |
-          echo "::error::Feature tests failed. Please fix the failing tests before merging."
-          exit 1
