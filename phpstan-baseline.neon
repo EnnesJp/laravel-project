@@ -1,0 +1,7 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Unable to resolve the template type TCacheValue in call to method Illuminate\\Contracts\\Cache\\Repository\:\:remember\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Repositories/RedisCacheRepository.php

@@ -29,7 +29,6 @@ class UserController extends Controller
                 new UserResource($user),
                 'User created successfully'
             );
-
         } catch (\Exception $e) {
             return JsonResponse::error(
                 'Failed to create user',
