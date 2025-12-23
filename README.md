@@ -1,104 +1,108 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Plataforma de Pagamento
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Esse projeto tem como objetivo fazer uma simples plataforma de pagamento, onde é possível receber e transferir créditos entre usuários.
 
-## About Laravel
+## Decisões Técnicas
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Tech Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Para o desenvolvimento deste exercício, a stack escolhida foi **PHP** com **Laravel**, devido à maior familiaridade do desenvolvedor. Além disso, foi utilizado **Docker** para a containerização da aplicação, facilitando a reprodução do ambiente de execução.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+#### Tecnologias
 
-## Learning Laravel
+- **MySQL** - Banco de dados principal
+- **Redis** - Utilizado para gerenciamento de cache e filas
+- **Larastan** - Análise estática de código para Laravel
+- **PHPMD** - PHP Mess Detector para detecção de problemas no código
+- **Pint** - Code style fixer para PHP
+- **Telescope** - Ferramenta de debug para projetos Laravel
+- **Horizon** - Dashboard e configuração para filas Redis
+- **Sanctum** - Sistema de autenticação API para SPAs e aplicações móveis
+- **Pest** - Framework de testes elegante e minimalista
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Arquitetura
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
-# Copy environment file
-cp .env.example .env
-
-# Build and start containers
-docker-compose up -d --build
-
-# Generate application key
-docker-compose exec app php artisan key:generate
-
-# Run migrations
-docker-compose exec app php artisan migrate --force
-
-echo "Your Laravel app is running at: http://localhost:8000"
-echo "Mailpit web interface is available at: http://localhost:8025"
-
+O projeto utiliza uma abordagem **Domain-Driven Design (DDD)** para organizar o código de forma mais limpa e maintível, separando as responsabilidades por domínios de negócio.
 
 ### Domain-Driven Organization
+
 ```
 app/
-├── Domains/
-│   ├── Auth/
-│   │   └── DTOs/
-│   ├── Transaction/
+├── Adapters/                    #  Adapters para serviços externos globais do app
+│   ├── Contracts/               #  Interfaces para serviços externos
+│   └── Mocks/                   #  Mocks para serviços externos
+├── Domains/ 
+│   ├── Transaction/             #  Domínio de transações financeiras
+│   │   ├── Adapters/
+│   │   │   ├── Contracts/
+│   │   │   └── Mocks/
 │   │   ├── DTOs/
+│   │   ├── Enums/
+│   │   ├── Events/
 │   │   ├── Exceptions/
+│   │   ├── Listeners/
 │   │   ├── Models/
 │   │   ├── Policies/
-│   │   ├── Repositories/
+│   │   ├── Repositories/        #  Repositórios para conexão com banco de dados do domínio de transações financeiras
 │   │   │   └── Contracts/
 │   │   ├── Resources/
-│   │   └── Services/
-│   └── User/
+│   │   └── Services/            #  Lógicas de negócio do domínio de transações financeiras
+│   └── User/                    #  Domínio de usuários
 │       ├── DTOs/
+│       ├── Enums/
 │       ├── Models/
-│       ├── Repositories/
+│       ├── Repositories/        #  Repositórios para conexão com banco de dados do domínio de usuários
 │       │   └── Contracts/
 │       ├── Resources/
-│       └── Services/
-├── Actions/
-│   ├── Transaction/
-│   └── User/
-└── Services/
-    └── Validation/
+│       └── Services/            #  Lógicas de negócio do domínio de usuários
+├── Http/                        #  Controllers para requisições HTTP
+└── Repositories/                #  Repositórios globais do app
+    └── Contracts/               #  Interfaces para repositórios globais
 ```
+
+Além da separação de responsabilidades, essa arquitetura também traz outros benefícios para a aplicação. O primeiro deles é a maior testabilidade e facilidade de manutenção: a separação clara de responsabilidades permite que cada trecho seja testado de forma unitária e independente, e a estrutura simples possibilita um fácil entendimento da responsabilidade de cada parte do código, permitindo que novos desenvolvedores realizem a manutenção sem dificuldades.
+
+Outro ponto importante a ser ressaltado é a escalabilidade. A arquitetura desenvolvida permite a adição de novas funcionalidades sem gerar impactos nas já existentes, além de manter o sistema aberto para extensão.
+
+## Como Executar
+
+### Projeto
+
+Para executar o projeto, é necessário ter o [**Docker**](https://www.docker.com/) instalado.
+
+Abaixo estão os passos para executar o projeto
+
+#### Copiar arquivo de configuração
+```bash
+cp .env.example .env
+```
+
+#### Faça o build da imagem docker
+```bash
+docker-compose up -d --build
+```
+
+#### Gerar chave de aplicação
+```bash
+docker-compose exec app php artisan key:generate
+```
+
+#### Rodar as migrations e seeds
+```bash
+docker-compose exec app php artisan migrate --seed
+```
+
+```bash
+echo "Your Laravel app is running at: http://localhost:8000"
+echo "Mailpit web interface is available at: http://localhost:8025"
+```
+
+### Testes
+
+Para executar os testes do projeto:
+
+```bash
+docker-compose exec app php artisan test
+```
+
+Os testes foram divididos em tres categorias: **Unitários**, **Integração** e **Arquitetura**. Os testes unitários são executados em cada classe de domínio, enquanto os testes de integração são executados em cada classe de controller. Por fim, os testes de arquitetura, tem como objetivo garantir que as regras de arquitetura do projeto serão seguidas como o esperado.
