@@ -39,7 +39,7 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             return JsonResponse::error(
                 'Login failed',
-                ['error' => $e->getMessage()],
+                $e->getMessage(),
                 500
             );
         }

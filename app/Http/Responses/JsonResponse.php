@@ -28,7 +28,7 @@ class JsonResponse
         return response()->json([
             'success' => false,
             'message' => $message,
-            'errors'  => $errors,
+            'error'   => $errors,
         ], $statusCode);
     }
 
@@ -50,12 +50,6 @@ class JsonResponse
         string $message = 'Resource not found'
     ): BaseJsonResponse {
         return self::error($message, null, 404);
-    }
-
-    public static function unauthorized(
-        string $message = 'Unauthorized'
-    ): BaseJsonResponse {
-        return self::error($message, null, 401);
     }
 
     public static function forbidden(

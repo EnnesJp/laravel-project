@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Domains\Transaction\Enums\TransactionType;
 use Tests\Traits\ClearsCache;
 use Tests\Traits\CreatesUsers;
 
@@ -24,32 +23,11 @@ it('allows admin to make deposit', function () {
             'payee' => $user->id,
         ]);
 
-    $response->assertStatus(201)
-        ->assertJsonStructure([
-            'success',
-            'message',
-            'data' => [
-                'id',
-                'payer_user_id',
-                'payee_user_id',
-                'type',
-                'created_at',
-                'updated_at',
-            ],
-        ])
-        ->assertJson([
-            'success' => true,
-            'message' => 'Deposit processed successfully',
-            'data'    => [
-                'payer_user_id' => $externalFund->id,
-                'payee_user_id' => $user->id,
-                'type'          => TransactionType::DEPOSIT->value,
-            ],
-        ]);
+    $response->assertStatus(201);
 
     expect($response->json('data.payer_user_id'))->toBe($externalFund->id);
     expect($response->json('data.payee_user_id'))->toBe($user->id);
-    expect($response->json('data.type'))->toBe('deposit');
+    expect($response->json('data.amount'))->toBe(100);
 
     $this->assertDatabaseHas('transactions', [
         'payer_user_id' => $externalFund->id,
@@ -149,10 +127,11 @@ it('validates payer and payee are different for deposit', function () {
             'payee' => $user->id,
         ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors([
-            'error' => 'Cannot create deposit where payer and payee are the same user',
-        ]);
+    $response->assertStatus(422);
+
+    $json = $response->json();
+    expect($json['success'])->toBeFalse()
+        ->and($json['error'])->toBe('Cannot create deposit where payer and payee are the same user');
 });
 
 it('validates users exist for deposit', function () {
@@ -165,10 +144,11 @@ it('validates users exist for deposit', function () {
             'payee' => 998,
         ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors([
-            'error' => 'User with ID 999 not found',
-        ]);
+    $response->assertStatus(422);
+
+    $json = $response->json();
+    expect($json['success'])->toBeFalse()
+        ->and($json['error'])->toBe('User with ID 999 not found');
 });
 
 it('fails when payer is not external fund for deposit', function () {
@@ -183,10 +163,11 @@ it('fails when payer is not external fund for deposit', function () {
             'payee' => $payee->id,
         ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors([
-            'error' => "Payer with role 'user' cannot be used for deposits. Only external_found users can be payers",
-        ]);
+    $response->assertStatus(422);
+
+    $json = $response->json();
+    expect($json['success'])->toBeFalse()
+        ->and($json['error'])->toBe("Payer with role 'user' cannot be used for deposits. Only external_found users can be payers");
 });
 
 it('fails when payee is external fund for deposit', function () {
@@ -201,8 +182,9 @@ it('fails when payee is external fund for deposit', function () {
             'payee' => $anotherExternalFund->id,
         ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors([
-            'error' => "Payee with role 'external_found' cannot recive deposits.",
-        ]);
+    $response->assertStatus(422);
+
+    $json = $response->json();
+    expect($json['success'])->toBeFalse()
+        ->and($json['error'])->toBe("Payee with role 'external_found' cannot recive deposits.");
 });

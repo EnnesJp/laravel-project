@@ -34,12 +34,9 @@ class TransactionController extends Controller
                 new TransactionResource($transaction),
                 'Deposit processed successfully'
             );
-
         } catch (InvalidDepositException $e) {
-            return JsonResponse::error(
-                $e->getMessage(),
-                ['error' => $e->getMessage()],
-                $e->getCode()
+            return JsonResponse::validationError(
+                $e->getMessage()
             );
         } catch (\Exception $e) {
             return JsonResponse::error(
@@ -50,6 +47,9 @@ class TransactionController extends Controller
         }
     }
 
+    /**
+     * @response array{success: bool, message: string, data: TransactionResource}
+     */
     public function transfer(TransferRequest $request): BaseJsonResponse
     {
         try {
@@ -62,23 +62,20 @@ class TransactionController extends Controller
                 new TransactionResource($transaction),
                 'Transfer processed successfully'
             );
-
         } catch (InvalidTransferException $e) {
-            return JsonResponse::error(
-                $e->getMessage(),
-                ['error' => $e->getMessage()],
-                $e->getCode()
+            return JsonResponse::validationError(
+                $e->getMessage()
             );
         } catch (ExternalValidationException $e) {
             return JsonResponse::error(
+                'External validation error',
                 $e->getMessage(),
-                ['error' => $e->getMessage()],
                 $e->getCode()
             );
         } catch (\Exception $e) {
             return JsonResponse::error(
                 'Failed to process transfer',
-                ['error' => $e->getMessage()],
+                $e->getMessage(),
                 500
             );
         }

@@ -53,7 +53,7 @@ it('prevents login with invalid credentials', function () {
         ->assertJson([
             'success' => false,
             'message' => 'Invalid credentials',
-            'errors'  => [
+            'error'   => [
                 'email' => ['The provided credentials are incorrect.'],
             ],
         ]);

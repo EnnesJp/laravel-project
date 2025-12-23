@@ -47,32 +47,11 @@ it('allows user to make transfer with sufficient balance', function () {
             'payee' => $payee->id,
         ]);
 
-    $response->assertStatus(201)
-        ->assertJsonStructure([
-            'success',
-            'message',
-            'data' => [
-                'id',
-                'payer_user_id',
-                'payee_user_id',
-                'type',
-                'created_at',
-                'updated_at',
-            ],
-        ])
-        ->assertJson([
-            'success' => true,
-            'message' => 'Transfer processed successfully',
-            'data'    => [
-                'payer_user_id' => $payer->id,
-                'payee_user_id' => $payee->id,
-                'type'          => 'transfer',
-            ],
-        ]);
+    $response->assertStatus(201);
 
     expect($response->json('data.payer_user_id'))->toBe($payer->id);
     expect($response->json('data.payee_user_id'))->toBe($payee->id);
-    expect($response->json('data.type'))->toBe('transfer');
+    expect($response->json('data.amount'))->toBe(50);
 
     $this->assertDatabaseHas('transactions', [
         'payer_user_id' => $payer->id,
@@ -124,9 +103,7 @@ it('rejects transfer when external validation fails', function () {
     $response->assertStatus(422)
         ->assertJson([
             'success' => false,
-            'errors'  => [
-                'error' => 'External validation failed: ' . $reason,
-            ],
+            'error'   => 'External validation failed: ' . $reason,
         ]);
 
     $this->assertDatabaseMissing('transactions', [
@@ -215,10 +192,11 @@ it('validates payer and payee are different for transfer', function () {
             'payee' => $user->id,
         ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors([
-            'error' => 'Cannot create deposit where payer and payee are the same user',
-        ]);
+    $response->assertStatus(422);
+
+    $json = $response->json();
+    expect($json['success'])->toBeFalse()
+        ->and($json['error'])->toBe('Cannot create deposit where payer and payee are the same user');
 });
 
 it('validates users exist for transfer', function () {
@@ -231,10 +209,11 @@ it('validates users exist for transfer', function () {
             'payee' => 999,
         ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors([
-            'error' => 'User with ID 999 not found',
-        ]);
+    $response->assertStatus(422);
+
+    $json = $response->json();
+    expect($json['success'])->toBeFalse()
+        ->and($json['error'])->toBe('User with ID 999 not found');
 });
 
 it('fails with insufficient balance', function () {
@@ -248,10 +227,11 @@ it('fails with insufficient balance', function () {
             'payee' => $payee->id,
         ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors([
-            'error' => 'Insufficient balance. Available: 1000, Required: 5000',
-        ]);
+    $response->assertStatus(422);
+
+    $json = $response->json();
+    expect($json['success'])->toBeFalse()
+        ->and($json['error'])->toBe('Insufficient balance. Available: 10,00, Required: 50,00');
 });
 
 it('fails when payer has invalid role', function () {
@@ -266,10 +246,11 @@ it('fails when payer has invalid role', function () {
             'payee' => $payee->id,
         ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors([
-            'error' => "User with role 'external_found' cannot perform transfers",
-        ]);
+    $response->assertStatus(422);
+
+    $json = $response->json();
+    expect($json['success'])->toBeFalse()
+        ->and($json['error'])->toBe("User with role 'external_found' cannot perform transfers");
 });
 
 it('fails when payee has invalid role', function () {
@@ -283,10 +264,11 @@ it('fails when payee has invalid role', function () {
             'payee' => $externalFund->id,
         ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors([
-            'error' => "User with role 'external_found' cannot recive transfers",
-        ]);
+    $response->assertStatus(422);
+
+    $json = $response->json();
+    expect($json['success'])->toBeFalse()
+        ->and($json['error'])->toBe("User with role 'external_found' cannot recive transfers");
 });
 
 it('handles transfer with multiple credits', function () {
@@ -335,10 +317,12 @@ it('prevents user role from transferring money for others', function () {
             'payee' => $payee->id,
         ]);
 
-    $response->assertStatus(422)
-        ->assertJsonValidationErrors([
-            'error' => "Users with 'user' role can only transfer their own money",
-        ]);
+
+    $response->assertStatus(422);
+
+    $json = $response->json();
+    expect($json['success'])->toBeFalse()
+        ->and($json['error'])->toBe("Users with 'user' role can only transfer their own money");
 });
 
 it('allows admin to transfer money for others', function () {

@@ -43,7 +43,7 @@ class DepositService
 
             return $this->repository->findByIdWithRelations(
                 $transaction->id,
-                ['credits', 'debits']
+                ['credit']
             );
         });
     }
