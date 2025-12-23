@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Adapters\Mocks;
 
 use App\Adapters\Contracts\NotificationAdapterInterface;
+use App\DTOs\NotificationDTO;
 use Illuminate\Support\Facades\Log;
 
 class MockNotificationAdapter implements NotificationAdapterInterface
@@ -14,11 +15,12 @@ class MockNotificationAdapter implements NotificationAdapterInterface
     ) {
     }
 
-    public function send(array $payload): void
+    public function send(NotificationDTO $notification): void
     {
         if ($this->shouldLog) {
             Log::info('Mock notification sent', [
-                'payload' => $payload,
+                'type'    => $notification->type,
+                'payload' => $notification->toArray(),
             ]);
         }
     }

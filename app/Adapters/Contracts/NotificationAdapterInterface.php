@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Adapters\Contracts;
 
+use App\DTOs\NotificationDTO;
+
 /**
  * Generic notification adapter interface.
  *
@@ -13,5 +15,5 @@ namespace App\Adapters\Contracts;
  */
 interface NotificationAdapterInterface
 {
-    public function send(array $payload): void;
+    public function send(NotificationDTO $notification): void;
 }
