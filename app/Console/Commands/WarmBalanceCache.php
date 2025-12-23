@@ -25,9 +25,11 @@ class WarmBalanceCache extends Command
 
         if ($userId) {
             $this->warmCacheForUser((int) $userId);
-        } else {
-            $this->warmCacheForAllUsers();
+
+            return self::SUCCESS;
         }
+
+        $this->warmCacheForAllUsers();
 
         return self::SUCCESS;
     }
