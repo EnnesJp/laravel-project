@@ -3,6 +3,7 @@
 return [
     App\Providers\AppServiceProvider::class,
     App\Providers\ValidationServiceProvider::class,
+    App\Providers\NotificationServiceProvider::class,
     App\Providers\HorizonServiceProvider::class,
     App\Providers\RepositoryServiceProvider::class,
     App\Providers\TelescopeServiceProvider::class,

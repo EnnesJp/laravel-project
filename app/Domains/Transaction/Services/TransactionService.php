@@ -8,8 +8,6 @@ use App\Domains\Transaction\DTOs\DepositDTO;
 use App\Domains\Transaction\DTOs\TransferDTO;
 use App\Domains\Transaction\Events\TransactionFailed;
 use App\Domains\Transaction\Events\TransactionSuccess;
-use App\Domains\Transaction\Exceptions\InvalidDepositException;
-use App\Domains\Transaction\Exceptions\InvalidTransferException;
 use App\Domains\Transaction\Models\Transaction;
 
 class TransactionService
@@ -20,9 +18,6 @@ class TransactionService
     ) {
     }
 
-    /**
-     * @throws InvalidDepositException
-     */
     public function deposit(DepositDTO $dto): Transaction
     {
         try {
@@ -35,9 +30,6 @@ class TransactionService
         }
     }
 
-    /**
-     * @throws InvalidTransferException
-     */
     public function transfer(TransferDTO $dto, int $currentUserId): Transaction
     {
         try {

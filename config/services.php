@@ -39,8 +39,4 @@ return [
         'url'     => env('EXTERNAL_VALIDATION_SERVICE_URL'),
         'timeout' => env('EXTERNAL_VALIDATION_TIMEOUT', 10),
     ],
-
-    'notification' => [
-        'url' => env('NOTIFICATION_SERVICE_URL'),
-    ],
 ];
