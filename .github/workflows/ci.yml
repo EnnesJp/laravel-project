@@ -165,6 +165,45 @@ jobs:
       - name: Run Architecture Tests
         run: ./vendor/bin/pest --testsuite=Arch
 
+  unit-tests:
+    runs-on: ubuntu-latest
+    name: Unit Tests
+    needs: [phpstan, phpmd]
+    
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+          coverage: xdebug
+
+      - name: Restore vendor cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: vendor-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+
+      - name: Copy CI environment file
+        run: cp .env.ci .env
+
+      - name: Generate App key
+        run: php artisan key:generate
+
+      - name: Run Unit Tests
+        run: ./vendor/bin/pest --testsuite=Unit --coverage-text --coverage-clover=unit-coverage.xml
+
   feature-tests:
     runs-on: ubuntu-latest
     name: Feature Tests
