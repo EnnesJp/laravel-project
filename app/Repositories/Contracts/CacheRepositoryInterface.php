@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\Transaction\Repositories\Contracts;
+namespace App\Repositories\Contracts;
 
 interface CacheRepositoryInterface
 {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domains\Transaction\Services;
 
-use App\Domains\Transaction\Repositories\Contracts\CacheRepositoryInterface;
 use App\Domains\Transaction\Repositories\Contracts\RemainingCreditRepositoryInterface;
+use App\Repositories\Contracts\CacheRepositoryInterface;
 
 class BalanceCacheService
 {
@@ -22,7 +22,7 @@ class BalanceCacheService
     {
         $cacheKey = $this->getCacheKey($userId);
 
-        return $this->cacheRepository->remember($cacheKey, self::CACHE_TTL, function () use ($userId) {
+        return (int) $this->cacheRepository->remember($cacheKey, self::CACHE_TTL, function () use ($userId) {
             $availableCredits = $this->repository->getRemainingCreditsByUserId($userId);
             return $availableCredits->sum('remaining');
         });

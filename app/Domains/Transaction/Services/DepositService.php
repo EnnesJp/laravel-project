@@ -33,27 +33,25 @@ class DepositService
         $this->validationService->validateDeposit($dto);
 
         try {
-            DB::beginTransaction();
+            return DB::transaction(function () use ($dto) {
+                $transactionDTO = new CreateTransactionDTO(
+                    payerUserId: $dto->payer,
+                    payeeUserId: $dto->payee,
+                    type: TransactionType::DEPOSIT
+                );
+                $transaction = $this->repository->create($transactionDTO);
 
-            $transactionDTO = new CreateTransactionDTO(
-                payerUserId: $dto->payer,
-                payeeUserId: $dto->payee,
-                type: TransactionType::DEPOSIT
-            );
-            $transaction = $this->repository->create($transactionDTO);
+                $this->creditService->createCredit($transaction->id, $dto->amount);
+                $this->debitService->createFundDebit($transaction->id, $dto->amount);
 
-            $this->creditService->createCredit($transaction->id, $dto->amount);
-            $this->debitService->createFundDebit($transaction->id, $dto->amount);
+                $this->cacheService->updateUserBalance($dto->payee, $dto->amount);
 
-            $this->cacheService->updateUserBalance($dto->payee, $dto->amount);
-
-            DB::commit();
-            return $this->repository->findByIdWithRelations(
-                $transaction->id,
-                ['credits', 'debits']
-            );
+                return $this->repository->findByIdWithRelations(
+                    $transaction->id,
+                    ['credits', 'debits']
+                );
+            });
         } catch (\Exception $e) {
-            DB::rollBack();
             event(new TransactionFailed($dto->payer, $dto->payee));
             throw $e;
         }

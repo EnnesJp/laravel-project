@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\Transaction\Repositories;
+namespace App\Repositories;
 
-use App\Domains\Transaction\Repositories\Contracts\CacheRepositoryInterface;
+use App\Repositories\Contracts\CacheRepositoryInterface;
 use Illuminate\Support\Facades\Cache;
 
 class RedisCacheRepository implements CacheRepositoryInterface
