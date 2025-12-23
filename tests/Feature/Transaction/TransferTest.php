@@ -7,9 +7,10 @@ use App\Domains\Transaction\Models\Credit;
 use App\Domains\Transaction\Models\Transaction;
 use App\Domains\User\Enums\UserRole;
 use Tests\Helpers\MockValidationHelper;
+use Tests\Traits\ClearsCache;
 use Tests\Traits\CreatesUsers;
 
-uses(CreatesUsers::class);
+uses(CreatesUsers::class, ClearsCache::class);
 
 function createUserWithBalance(UserRole $role, int $balance): \App\Domains\User\Models\User
 {
@@ -32,6 +33,7 @@ function createUserWithBalance(UserRole $role, int $balance): \App\Domains\User\
 
 beforeEach(function () {
     MockValidationHelper::bindSuccessfulMock();
+    $this->clearRedisCache();
 });
 
 it('allows user to make transfer with sufficient balance', function () {

@@ -3,9 +3,14 @@
 declare(strict_types=1);
 
 use App\Domains\Transaction\Enums\TransactionType;
+use Tests\Traits\ClearsCache;
 use Tests\Traits\CreatesUsers;
 
-uses(CreatesUsers::class);
+uses(CreatesUsers::class, ClearsCache::class);
+
+beforeEach(function () {
+    $this->clearRedisCache();
+});
 
 it('allows admin to make deposit', function () {
     $admin        = $this->createAdmin();
