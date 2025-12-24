@@ -8,8 +8,8 @@ use App\Domains\User\Enums\UserRole;
 use App\Rules\DocumentRule;
 use App\ValueObjects\Document\Factory\DocumentFactory;
 use App\ValueObjects\Email;
+use App\ValueObjects\Password;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 
 class CreateUserRequest extends FormRequest
 {
@@ -42,10 +42,6 @@ class CreateUserRequest extends FormRequest
             'password' => [
                 'required',
                 'string',
-                Password::min(8)
-                    ->letters()
-                    ->numbers()
-                    ->symbols(),
             ],
             'role' => ['required', 'string', 'in:'.$options],
         ];
@@ -85,6 +81,7 @@ class CreateUserRequest extends FormRequest
 
         $validated['document'] = DocumentFactory::create($validated['document']);
         $validated['email']    = Email::fromString($validated['email']);
+        $validated['password'] = Password::fromString($validated['password']);
 
         return $validated;
     }

@@ -60,15 +60,16 @@ it('fails to create user with weak password', function () {
     $userData = [
         'name'     => 'João Silva',
         'email'    => 'joao@example.com',
-        'document' => '12345678901',
+        'document' => '98421523082',
         'password' => '123456',
         'role'     => UserRole::ADMIN->value,
     ];
 
     $response = $this->postJson('/api/v1/users', $userData);
 
-    $response->assertStatus(422)
-            ->assertJsonValidationErrors(['password']);
+    $response->assertStatus(422);
+    $json = $response->json();
+    expect($json['error'])->toBe('Password must be at least 8 characters long and contain letters, numbers, and symbols.');
 });
 
 it('fails to create user with duplicate email', function () {

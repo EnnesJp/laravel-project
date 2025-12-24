@@ -8,6 +8,7 @@ use App\Http\Requests\CreateUserRequest;
 use App\ValueObjects\Document\Base\Document;
 use App\ValueObjects\Document\Factory\DocumentFactory;
 use App\ValueObjects\Email;
+use App\ValueObjects\Password;
 
 class CreateUserDTO
 {
@@ -15,7 +16,7 @@ class CreateUserDTO
         public readonly string $name,
         public readonly Email $email,
         public readonly Document $document,
-        public readonly string $password,
+        public readonly Password $password,
         public readonly string $role
     ) {
     }
@@ -42,7 +43,7 @@ class CreateUserDTO
             name: $data['name'],
             email: Email::fromString($data['email']),
             document: DocumentFactory::create($data['document']),
-            password: $data['password'],
+            password: Password::fromString($data['password']),
             role: $data['role']
         );
     }
