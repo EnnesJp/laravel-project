@@ -11,10 +11,11 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
-class HttpNotificationAdapter implements NotificationAdapterInterface
+class TwilioNotificationAdapter implements NotificationAdapterInterface
 {
     public function __construct(
         private readonly string $baseUrl,
+        private readonly string $apiKey = '',
         private readonly int $timeoutSeconds = 10
     ) {
     }
@@ -22,31 +23,37 @@ class HttpNotificationAdapter implements NotificationAdapterInterface
     public function send(NotificationDTO $notification): void
     {
         if (empty($this->baseUrl)) {
-            Log::warning('Notification URL not configured');
+            Log::warning('SMS notification URL not configured');
             return;
         }
 
-        $payload = $notification->toArray();
+        $payload = $this->buildSmsPayload($notification);
 
         try {
+            $headers = [];
+            if (!empty($this->apiKey)) {
+                $headers['Authorization'] = "Bearer {$this->apiKey}";
+            }
+
             /** @var Response $response */
             $response = Http::timeout($this->timeoutSeconds)
+                ->withHeaders($headers)
                 ->post("{$this->baseUrl}/notify", $payload);
 
             $statusCode = $response->status();
             if ($statusCode >= 400) {
                 $errorMessage = "HTTP {$statusCode}: {$response->body()}";
-                Log::error('Failed to send notification', [
+                Log::error('Failed to send SMS notification', [
                     'status'   => $statusCode,
                     'response' => $response->body(),
                     'type'     => $notification->type,
                     'payload'  => $payload,
                 ]);
 
-                throw new RuntimeException("Notification failed: {$errorMessage}");
+                throw new RuntimeException("SMS notification failed: {$errorMessage}");
             }
         } catch (\Exception $e) {
-            Log::error('Exception while sending notification', [
+            Log::error('Exception while sending SMS notification', [
                 'message' => $e->getMessage(),
                 'type'    => $notification->type,
                 'payload' => $payload,
@@ -54,5 +61,17 @@ class HttpNotificationAdapter implements NotificationAdapterInterface
 
             throw $e;
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildSmsPayload(NotificationDTO $notification): array
+    {
+        $basePayload = $notification->toArray();
+
+        $basePayload['channel'] = 'sms';
+
+        return $basePayload;
     }
 }

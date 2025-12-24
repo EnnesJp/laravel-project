@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Domains\Transaction\Listeners;
 
-use App\Adapters\Contracts\NotificationAdapterInterface;
+use App\Adapters\Contracts\NotificationManagerInterface;
 use App\Domains\Transaction\DTOs\TransactionSuccessNotificationDTO;
 use App\Domains\Transaction\Events\TransactionSuccess;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
-class SendTransactionSuccessNotification implements ShouldQueue
+class SendTransactionSuccessEmail implements ShouldQueue
 {
     use InteractsWithQueue;
 
@@ -22,7 +22,7 @@ class SendTransactionSuccessNotification implements ShouldQueue
     public array $backoff = [1, 5, 10];
 
     public function __construct(
-        private readonly NotificationAdapterInterface $notificationAdapter
+        private readonly NotificationManagerInterface $notificationManager
     ) {
     }
 
@@ -31,9 +31,9 @@ class SendTransactionSuccessNotification implements ShouldQueue
         $notification = TransactionSuccessNotificationDTO::fromEvent($event);
 
         try {
-            $this->notificationAdapter->send($notification);
+            $this->notificationManager->sendEmail($notification);
         } catch (\Exception $e) {
-            Log::warning('Failed to send transaction success notification', [
+            Log::warning('Failed to send email notification', [
                 'attempt'        => $this->attempts(),
                 'max_attempts'   => $this->maxExceptions,
                 'transaction_id' => $event->transactionId ?? 'unknown',
@@ -41,7 +41,7 @@ class SendTransactionSuccessNotification implements ShouldQueue
             ]);
 
             if ($this->attempts() >= $this->maxExceptions) {
-                Log::error('Transaction success notification failed after all retry attempts', [
+                Log::error('Transaction success email notification failed after all retry attempts', [
                     'transaction_id' => $event->transactionId ?? 'unknown',
                     'total_attempts' => $this->attempts(),
                     'final_error'    => $e->getMessage(),
