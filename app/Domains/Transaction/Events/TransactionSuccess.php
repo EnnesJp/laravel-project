@@ -13,6 +13,7 @@ class TransactionSuccess
     use SerializesModels;
 
     public function __construct(
+        public readonly int $transactionId,
         public readonly int $payeeUserId,
         public readonly ?int $payerUserId = null
     ) {

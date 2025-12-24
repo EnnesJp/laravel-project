@@ -9,6 +9,7 @@ use App\DTOs\NotificationDTO;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 class HttpNotificationAdapter implements NotificationAdapterInterface
 {
@@ -34,12 +35,15 @@ class HttpNotificationAdapter implements NotificationAdapterInterface
 
             $statusCode = $response->status();
             if ($statusCode >= 400) {
+                $errorMessage = "HTTP {$statusCode}: {$response->body()}";
                 Log::error('Failed to send notification', [
                     'status'   => $statusCode,
                     'response' => $response->body(),
                     'type'     => $notification->type,
                     'payload'  => $payload,
                 ]);
+
+                throw new RuntimeException("Notification failed: {$errorMessage}");
             }
         } catch (\Exception $e) {
             Log::error('Exception while sending notification', [
@@ -47,6 +51,8 @@ class HttpNotificationAdapter implements NotificationAdapterInterface
                 'type'    => $notification->type,
                 'payload' => $payload,
             ]);
+
+            throw $e;
         }
     }
 }

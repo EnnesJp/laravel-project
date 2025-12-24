@@ -174,6 +174,8 @@ Para o desenvolvimento deste projeto, algumas premissas foram consideradas:
 
 ### Rotas
 
+Aqui estão as rotas disponíveis na aplicação, todas elas estão cobertas por um rate limiter para evitar possíveis ataques maliciosos ao app:
+
 #### Rota Principal
 
 A rota principal é a rota de transferência de créditos entre usuários. Conforme solicitado, ela recebe os IDs dos usuários e o valor a ser transferido. Para que a transação seja finalizada, é necessário que o usuário tenha saldo e que a validação externa seja aprovada.
@@ -203,7 +205,7 @@ POST /api/v1/users
     "name"     : "João Silva",
     "email"    : "user@example.com",
     "document" : "11572437626",
-    "password" : "Password123!",
+    "password" : "Password123!", # Deve conter pelo menos 8 caractéres com uma letra maiúscula, uma letra minúscula, um número e um caractere especial
     "role"     : "user"
 }
 ```

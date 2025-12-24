@@ -22,7 +22,7 @@ class TransactionService
     {
         try {
             $transaction = $this->depositService->deposit($dto);
-            event(new TransactionSuccess($dto->payee, $dto->payer));
+            event(new TransactionSuccess($transaction->id, $dto->payee, $dto->payer));
             return $transaction;
         } catch (\Exception $e) {
             event(new TransactionFailed($dto->payee, $dto->payer));
@@ -34,7 +34,7 @@ class TransactionService
     {
         try {
             $transaction = $this->transferService->transfer($dto, $currentUserId);
-            event(new TransactionSuccess($dto->payee, $dto->payer));
+            event(new TransactionSuccess($transaction->id, $dto->payee, $dto->payer));
             return $transaction;
         } catch (\Exception $e) {
             event(new TransactionFailed($dto->payee, $dto->payer));
