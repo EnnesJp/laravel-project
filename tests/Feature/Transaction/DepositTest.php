@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\Event;
+use Tests\Traits\AssertsEvents;
 use Tests\Traits\ClearsCache;
 use Tests\Traits\CreatesUsers;
 
-uses(CreatesUsers::class, ClearsCache::class);
+uses(CreatesUsers::class, ClearsCache::class, AssertsEvents::class);
 
 beforeEach(function () {
     $this->clearRedisCache();
+    Event::fake();
 });
 
 it('allows admin to make deposit', function () {
@@ -38,6 +41,8 @@ it('allows admin to make deposit', function () {
     $this->assertDatabaseHas('credits', [
         'amount' => 10000,
     ]);
+
+    $this->assertTransactionSuccessEvent($user->id, $externalFund->id);
 });
 
 it('allows external fund user to make deposit', function () {
@@ -57,6 +62,8 @@ it('allows external fund user to make deposit', function () {
             'success' => true,
             'message' => 'Deposit processed successfully',
         ]);
+
+    $this->assertTransactionSuccessEvent($user->id, $anotherExternalFund->id);
 });
 
 it('prevents regular user from making deposit', function () {
@@ -168,6 +175,8 @@ it('fails when payer is not external fund for deposit', function () {
     $json = $response->json();
     expect($json['success'])->toBeFalse()
         ->and($json['error'])->toBe("Payer with role 'user' cannot be used for deposits. Only external_found users can be payers");
+
+    $this->assertTransactionFailedEvent($payee->id, $regularUser->id);
 });
 
 it('fails when payee is external fund for deposit', function () {
@@ -187,4 +196,6 @@ it('fails when payee is external fund for deposit', function () {
     $json = $response->json();
     expect($json['success'])->toBeFalse()
         ->and($json['error'])->toBe("Payee with role 'external_found' cannot recive deposits.");
+
+    $this->assertTransactionFailedEvent($anotherExternalFund->id, $externalFund->id);
 });

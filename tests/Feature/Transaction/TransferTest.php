@@ -6,11 +6,13 @@ use App\Domains\Transaction\Enums\TransactionType;
 use App\Domains\Transaction\Models\Credit;
 use App\Domains\Transaction\Models\Transaction;
 use App\Domains\User\Enums\UserRole;
+use Illuminate\Support\Facades\Event;
 use Tests\Helpers\MockValidationHelper;
+use Tests\Traits\AssertsEvents;
 use Tests\Traits\ClearsCache;
 use Tests\Traits\CreatesUsers;
 
-uses(CreatesUsers::class, ClearsCache::class);
+uses(CreatesUsers::class, ClearsCache::class, AssertsEvents::class);
 
 function createUserWithBalance(UserRole $role, int $balance): \App\Domains\User\Models\User
 {
@@ -34,6 +36,7 @@ function createUserWithBalance(UserRole $role, int $balance): \App\Domains\User\
 beforeEach(function () {
     MockValidationHelper::bindSuccessfulMock();
     $this->clearRedisCache();
+    Event::fake();
 });
 
 it('allows user to make transfer with sufficient balance', function () {
@@ -66,6 +69,8 @@ it('allows user to make transfer with sufficient balance', function () {
     $this->assertDatabaseHas('debits', [
         'amount' => 5000,
     ]);
+
+    $this->assertTransactionSuccessEvent($payee->id, $payer->id);
 });
 
 it('allows admin to make transfer', function () {
@@ -84,6 +89,8 @@ it('allows admin to make transfer', function () {
             'success' => true,
             'message' => 'Transfer processed successfully',
         ]);
+
+    $this->assertTransactionSuccessEvent($payee->id, $admin->id);
 });
 
 it('rejects transfer when external validation fails', function () {
@@ -232,6 +239,8 @@ it('fails with insufficient balance', function () {
     $json = $response->json();
     expect($json['success'])->toBeFalse()
         ->and($json['error'])->toBe('Insufficient balance. Available: 10,00, Required: 50,00');
+
+    $this->assertTransactionFailedEvent($payee->id, $payer->id);
 });
 
 it('fails when payer has invalid role', function () {
@@ -251,6 +260,8 @@ it('fails when payer has invalid role', function () {
     $json = $response->json();
     expect($json['success'])->toBeFalse()
         ->and($json['error'])->toBe("User with role 'external_found' cannot perform transfers");
+
+    $this->assertTransactionFailedEvent($payee->id, $externalFund->id);
 });
 
 it('fails when payee has invalid role', function () {
@@ -269,6 +280,8 @@ it('fails when payee has invalid role', function () {
     $json = $response->json();
     expect($json['success'])->toBeFalse()
         ->and($json['error'])->toBe("User with role 'external_found' cannot recive transfers");
+
+    $this->assertTransactionFailedEvent($externalFund->id, $payer->id);
 });
 
 it('handles transfer with multiple credits', function () {
@@ -303,6 +316,7 @@ it('handles transfer with multiple credits', function () {
         ]);
 
     $this->assertDatabaseCount('debits', 3);
+    $this->assertTransactionSuccessEvent($payee->id, $payer->id);
 });
 
 it('prevents user role from transferring money for others', function () {
@@ -323,6 +337,8 @@ it('prevents user role from transferring money for others', function () {
     $json = $response->json();
     expect($json['success'])->toBeFalse()
         ->and($json['error'])->toBe("Users with 'user' role can only transfer their own money");
+
+    $this->assertTransactionFailedEvent($payee->id, $user2->id);
 });
 
 it('allows admin to transfer money for others', function () {
@@ -342,4 +358,6 @@ it('allows admin to transfer money for others', function () {
             'success' => true,
             'message' => 'Transfer processed successfully',
         ]);
+
+    $this->assertTransactionSuccessEvent($payee->id, $user->id);
 });
