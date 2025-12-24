@@ -17,8 +17,8 @@ class NotificationManagerFactory
         $adapters = [];
 
         foreach ($channelsConfig as $channel => $config) {
-            $type          = $config['type']   ?? 'http';
-            $adapterConfig = $config['config'] ?? [];
+            $type          = $config['type'];
+            $adapterConfig = $config['config'];
 
             $adapters[$channel] = NotificationAdapterFactory::create($type, $adapterConfig);
         }

@@ -11,6 +11,9 @@ use InvalidArgumentException;
 
 class ValidationAdapterFactory
 {
+    /**
+     * @param array<string, mixed> $config
+     */
     public static function create(string $type, array $config = []): ValidationAdapterInterface
     {
         return match ($type) {

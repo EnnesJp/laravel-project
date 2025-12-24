@@ -12,6 +12,9 @@ use InvalidArgumentException;
 
 class NotificationAdapterFactory
 {
+    /**
+     * @param array<string, string> $config
+     */
     public static function create(string $type, array $config = []): NotificationAdapterInterface
     {
         return match ($type) {
