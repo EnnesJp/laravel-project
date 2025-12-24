@@ -72,6 +72,8 @@ A estrutura do banco de dados é simples, contendo apenas cinco tabelas e uma vi
 
 **OBS:** não estão sendo consideradas aqui as tabelas criadas pelo Laravel.
 
+![DataBase](db-image.png)
+
 - **users** - Tabela de usuários
 - **transactions** - Tabela de transações financeiras
 - **credits** - Tabela de créditos
