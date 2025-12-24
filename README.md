@@ -191,10 +191,7 @@ docker-compose exec app php artisan key:generate
 docker-compose exec app php artisan migrate --seed
 ```
 
-```bash
-echo "Your Laravel app is running at: http://localhost:8000"
-echo "Mailpit web interface is available at: http://localhost:8025"
-```
+A aplicação estará rodando em `http://localhost:8000`
 
 ### Testes
 

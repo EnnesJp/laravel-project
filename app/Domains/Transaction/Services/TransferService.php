@@ -8,12 +8,9 @@ use App\Domains\Transaction\Adapters\Contracts\ValidationAdapterInterface;
 use App\Domains\Transaction\DTOs\CreateTransactionDTO;
 use App\Domains\Transaction\DTOs\TransferDTO;
 use App\Domains\Transaction\Enums\TransactionType;
-use App\Domains\Transaction\Exceptions\ExternalValidationException;
-use App\Domains\Transaction\Exceptions\InvalidTransferException;
 use App\Domains\Transaction\Models\Transaction;
 use App\Domains\Transaction\Repositories\Contracts\TransactionRepositoryInterface;
 use App\Domains\Transaction\Services\Validation\TransferValidationService;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class TransferService
@@ -23,61 +20,49 @@ class TransferService
         private readonly TransactionRepositoryInterface $repository,
         private readonly CreditService $creditService,
         private readonly DebitService $debitService,
-        private readonly ValidationAdapterInterface $externalValidation
+        private readonly ValidationAdapterInterface $externalValidation,
+        private readonly UserLockingService $lockingService
     ) {
     }
 
-    /**
-     * @throws InvalidTransferException
-     * @throws ExternalValidationException
-     */
     public function transfer(TransferDTO $dto, int $currentUserId): Transaction
     {
         $this->validationService->validateTransferData($dto, $currentUserId);
 
-        return $this->lockUsersForTransfer($dto->payer, $dto->payee, function () use ($dto) {
-            return DB::transaction(function () use ($dto) {
-                $transactionDTO = new CreateTransactionDTO(
-                    payerUserId: $dto->payer,
-                    payeeUserId: $dto->payee,
-                    type: TransactionType::TRANSFER
-                );
-                $transaction = $this->repository->create($transactionDTO);
+        return $this->lockingService->lockUsersForOperation(
+            [$dto->payer, $dto->payee],
+            fn () => $this->executeTransferTransaction($dto)
+        );
+    }
 
-                $this->creditService->createCredit($transaction->id, $dto->amount);
+    private function executeTransferTransaction(TransferDTO $dto): Transaction
+    {
+        return DB::transaction(function () use ($dto) {
+            $transaction = $this->createTransferTransaction($dto, TransactionType::TRANSFER);
+            $this->processTransferEntries($transaction, $dto);
+            $this->externalValidation->validateTransfer($dto);
 
-                $this->debitService->createDebits(
-                    $dto->payer,
-                    $dto->amount,
-                    $transaction->id
-                );
-
-                $this->externalValidation->validateTransfer($dto);
-
-                return $this->repository->findByIdWithRelations(
-                    $transaction->id,
-                    ['credit']
-                );
-            });
+            return $this->repository->findByIdWithRelations(
+                $transaction->id,
+                ['credit']
+            );
         });
     }
 
-    private function lockUsersForTransfer(int $payerId, int $payeeId, callable $callback): mixed
+    private function createTransferTransaction(TransferDTO $dto, TransactionType $type): Transaction
     {
-        $userIds = [$payerId, $payeeId];
-        sort($userIds);
+        $transactionDTO = new CreateTransactionDTO(
+            payerUserId: $dto->payer,
+            payeeUserId: $dto->payee,
+            type: $type
+        );
 
-        $firstUserId  = $userIds[0];
-        $secondUserId = $userIds[1];
+        return $this->repository->create($transactionDTO);
+    }
 
-        $firstLock = Cache::lock("user:{$firstUserId}", config('app.redis_lock_timeout'));
-
-        return $firstLock->block(config('app.redis_lock_max_retries'), function () use ($secondUserId, $callback) {
-            $secondLock = Cache::lock("user:{$secondUserId}", config('app.redis_lock_timeout'));
-
-            return $secondLock->block(config('app.redis_lock_max_retries'), function () use ($callback) {
-                return $callback();
-            });
-        });
+    private function processTransferEntries(Transaction $transaction, TransferDTO $dto): void
+    {
+        $this->creditService->createCredit($transaction->id, $dto->amount);
+        $this->debitService->createDebits($dto->payer, $dto->amount, $transaction->id);
     }
 }
