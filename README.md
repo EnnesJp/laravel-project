@@ -244,9 +244,13 @@ Para o desenvolvimento deste projeto, algumas premissas foram consideradas:
 
 Aqui estão as rotas disponíveis na aplicação. Todas elas estão cobertas por um rate limiter para evitar possíveis ataques maliciosos ao app. Além disso, foi utilizado o **Telescope** como ferramenta de observabilidade, permitindo a visualização em tempo real das chamadas de API. O Telescope não é recomendado para utilização em produção, mas, para esse projeto, cumpre seu papel. É recomendado que, em caso de evolução do app, sejam adotadas ferramentas mais robustas de observabilidade.
 
+Na raiz do projeto existe uma collection do postman com todas as rotas do projeto, caso queira utilizar.
+
 #### Rota Principal
 
 A rota principal é a rota de transferência de créditos entre usuários. Conforme solicitado, ela recebe os IDs dos usuários e o valor a ser transferido. Para que a transação seja finalizada, é necessário que o usuário tenha saldo e que a validação externa seja aprovada.
+
+Além disso, foi implementada também uma lógica de lock baseada nos [Atomic Locks](https://laravel.com/docs/12.x/cache#atomic-locks) do Laravel, com o objetivo de tratar possíveis casos de concorrência em que um usuário tente transferir o mesmo saldo em requisições simultâneas e burlar a validação de saldo.
 
 ```bash
 POST /api/v1/transfer
