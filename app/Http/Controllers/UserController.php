@@ -33,7 +33,7 @@ class UserController extends Controller
             return JsonResponse::error(
                 'Failed to create user',
                 $e->getMessage(),
-                500
+                $e->getCode() ?: 500
             );
         }
     }

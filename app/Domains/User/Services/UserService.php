@@ -21,7 +21,7 @@ class UserService
 
     public function createUser(CreateUserDTO $dto): User
     {
-        $hash = Hash::make($dto->password);
+        $hash = Hash::make($dto->password->getValue());
 
         return $this->userRepository->create(CreateUserDTO::fromArray([
             ...$dto->toArray(),

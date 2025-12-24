@@ -41,9 +41,9 @@ arch('value-objects-have-get-value-method')
     ]);
 
 arch('document-value-objects-extend-document')
-    ->expect('App\ValueObjects')
+    ->expect('App\ValueObjects\Document')
     ->classes()
-    ->toExtend('App\ValueObjects\Document')
+    ->toExtend('App\ValueObjects\Document\Base\Document')
     ->ignoring([
         'App\ValueObjects\Document',
         'App\ValueObjects\Document\Factory',
