@@ -2,9 +2,6 @@
 
 use App\Domains\User\Enums\UserRole;
 use App\Domains\User\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('can create a user with valid data', function () {
     $userData = [

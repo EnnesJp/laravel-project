@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Traits;
 
+use App\Domains\Transaction\Enums\TransactionType;
+use App\Domains\Transaction\Models\Credit;
+use App\Domains\Transaction\Models\Transaction;
 use App\Domains\User\Enums\UserRole;
 use App\Domains\User\Models\User;
 use App\ValueObjects\Document\Cpf;
@@ -43,5 +46,24 @@ trait CreatesUsers
     protected function createRegularUser(array $attributes = []): User
     {
         return $this->createUser(array_merge(['role' => UserRole::USER->value], $attributes));
+    }
+
+    protected function createUserWithBalance(UserRole $role, int $balance): \App\Domains\User\Models\User
+    {
+        $user         = $this->createUser(['role' => $role->value]);
+        $externalFund = $this->createExternalFund();
+
+        $transaction = Transaction::create([
+            'payer_user_id' => $externalFund->id,
+            'payee_user_id' => $user->id,
+            'type'          => TransactionType::DEPOSIT,
+        ]);
+
+        Credit::create([
+            'transaction_id' => $transaction->id,
+            'amount'         => $balance * 100,
+        ]);
+
+        return $user;
     }
 }

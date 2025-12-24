@@ -123,4 +123,17 @@ return [
         'store'  => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Atomic Lock Configuration
+    |--------------------------------------------------------------------------
+    |
+    | These configuration options determine the behavior of Laravel's atomic
+    | locks used to prevent race conditions in critical sections.
+    |
+    */
+
+    'redis_lock_timeout'     => (int) env('REDIS_LOCK_TIMEOUT', 30),
+    'redis_lock_max_retries' => (int) env('REDIS_LOCK_MAX_RETRIES', 50),
+
 ];
