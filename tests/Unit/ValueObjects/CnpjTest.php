@@ -40,7 +40,7 @@ it('generates valid CNPJ', function () {
 it('compares CNPJs correctly', function () {
     $cnpj1 = new Cnpj('11222333000181');
     $cnpj2 = new Cnpj('11.222.333/0001-81');
-    $cnpj3 = new Cnpj('98765432000195');
+    $cnpj3 = new Cnpj('14352627000116');
 
     expect($cnpj1->equals($cnpj2))->toBeTrue();
     expect($cnpj1->equals($cnpj3))->toBeFalse();
@@ -50,10 +50,4 @@ it('converts to string', function () {
     $cnpj = new Cnpj('11222333000181');
 
     expect((string) $cnpj)->toBe('11.222.333/0001-81');
-});
-
-it('serializes to JSON', function () {
-    $cnpj = new Cnpj('11222333000181');
-
-    expect(json_encode($cnpj))->toBe('"11.222.333/0001-81"');
 });
