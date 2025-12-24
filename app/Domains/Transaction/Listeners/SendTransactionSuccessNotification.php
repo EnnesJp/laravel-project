@@ -15,7 +15,6 @@ class SendTransactionSuccessNotification implements ShouldQueue
 {
     use InteractsWithQueue;
 
-    public int $tries         = 3;
     public int $maxExceptions = 3;
     /**
      * @var array<int, int>
@@ -36,12 +35,12 @@ class SendTransactionSuccessNotification implements ShouldQueue
         } catch (\Exception $e) {
             Log::warning('Failed to send transaction success notification', [
                 'attempt'        => $this->attempts(),
-                'max_attempts'   => $this->tries,
+                'max_attempts'   => $this->maxExceptions,
                 'transaction_id' => $event->transactionId ?? 'unknown',
                 'error'          => $e->getMessage(),
             ]);
 
-            if ($this->attempts() >= $this->tries) {
+            if ($this->attempts() >= $this->maxExceptions) {
                 Log::error('Transaction success notification failed after all retry attempts', [
                     'transaction_id' => $event->transactionId ?? 'unknown',
                     'total_attempts' => $this->attempts(),
