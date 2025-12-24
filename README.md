@@ -1,6 +1,6 @@
 # Plataforma de Pagamento
 
-Esse projeto tem como objetivo fazer uma simples plataforma de pagamento, onde é possível receber e transferir créditos entre usuários.
+Este projeto tem como objetivo criar uma plataforma simples de pagamento, onde é possível receber e transferir créditos entre usuários.
 
 ## Decisões Técnicas
 
@@ -10,19 +10,19 @@ Para o desenvolvimento deste exercício, a stack escolhida foi **PHP** com **Lar
 
 #### Tecnologias
 
-- **Redis** - Utilizado para gerenciamento de cache e filas
-- **Larastan** - Análise estática de código para Laravel
-- **PHPMD** - PHP Mess Detector para detecção de problemas no código
-- **Pint** - Code style fixer para PHP
-- **Telescope** - Ferramenta de debug para projetos Laravel
-- **Horizon** - Dashboard e configuração para filas Redis
-- **Sanctum** - Sistema de autenticação API para SPAs e aplicações móveis
-- **Pest** - Framework de testes elegante e minimalista
-- **Scramble** - Laravel package para gerar documentação de API
+- **Redis** - Utilizado para gerenciamento de cache e filas  
+- **Larastan** - Análise estática de código para Laravel  
+- **PHPMD** - PHP Mess Detector para detecção de problemas no código  
+- **Pint** - Code style fixer para PHP  
+- **Telescope** - Ferramenta de debug para projetos Laravel  
+- **Horizon** - Dashboard e configuração para filas Redis  
+- **Sanctum** - Sistema de autenticação API para SPAs e aplicações móveis  
+- **Pest** - Framework de testes elegante e minimalista  
+- **Scramble** - Pacote Laravel para gerar documentação de API  
 
 ### Arquitetura
 
-O projeto utiliza uma abordagem **Domain-Driven Design (DDD)** para organizar o código de forma mais limpa e maintível, separando as responsabilidades por domínios de negócio.
+O projeto utiliza uma abordagem **Domain-Driven Design (DDD)** para organizar o código de forma mais limpa e manutenível, separando as responsabilidades por domínios de negócio.
 
 ### Domain-Driven Organization
 
@@ -66,28 +66,29 @@ Outro ponto importante a ser ressaltado é a escalabilidade. A arquitetura desen
 
 ### Estrutura do Banco de Dados
 
-O banco de dados utilizado foi o **MySQL**. O projeto utiliza o **Eloquent ORM** para realizar as operações de CRUD no banco de dados, além de utilizar o **Migrations** para gerenciar as alterações no banco de dados.
+O banco de dados utilizado foi o **MySQL**. O projeto utiliza o **Eloquent ORM** para realizar as operações de CRUD no banco de dados, além de utilizar **Migrations** para gerenciar as alterações no banco de dados.
 
-A estrutura do banco de dados é simples, contendo apenas cinco tabelas e uma view para facilitar a busca de dados espacíficos:
+A estrutura do banco de dados é simples, contendo apenas cinco tabelas e uma view para facilitar a busca de dados específicos:
 
-**OBS:** não estão sendo consideradas aqui as tabelas criadas pelo Laravel
+**OBS:** não estão sendo consideradas aqui as tabelas criadas pelo Laravel.
 
-- **users** - Tabela de usuários
+- **users** - Tabela de usuários  
+- **transactions** - Tabela de transações financeiras  
+- **credits** - Tabela de créditos  
+- **debits** - Tabela de débitos  
+- **fund_debits** - Tabela de débitos de fundos externos  
 
-- **transactions** - Tabela de transações financeiras
-- **credits** - Tabela de créditos
-- **debits** - Tabela de débitos
-- **fund_debits** - Tabela de débitos de fundos externos
+- **remaining_credits** - View para buscar apenas saldos que ainda não foram totalmente utilizados  
 
-- **remaining_credits** - View para buscar apenas saldos que ainda não foram totalmente utilizados
+Na tabela de `transactions` é possível ver todas as transações financeiras realizadas, tanto de transferências quanto de depósitos. Além disso, também estão presentes os IDs do usuário pagador e daquele que está recebendo o valor.
 
-Na tabela de `transactions` é possível ver todas as transações financeiras realizadas, tanto de transferencias quanto de depositos. Além disso, temos também os IDs do usuário pagador e daquele que está recebendo o valor.
+Toda transação gera um débito na conta do usuário pagador e um crédito na conta do usuário que está recebendo o valor. No caso de uma transferência, portanto, são gerados dois novos registros: um na tabela de `debits` e um na tabela de `credits`. Para permitir uma maior rastreabilidade, o débito é vinculado ao crédito que foi utilizado na transação, o que permite identificar com maior facilidade possíveis erros no saldo do usuário, rastreando os créditos que ele já recebeu e todas as suas utilizações.
 
-Toda transação gera um debito na conta do usuário pagador e um credito na conta do usuário que está recebendo o valor. No caso de uma transferencia, portanto, são gerados dois novos registros, um na tabela de `debits` e um na tabela de `credits`. Para permitir uma maior rastreabilidade o debito é lincado ao credito que foi utilizado na transação, isso permite com que possamos identificar com maior facilidade caso haja algum erro no saldo do usuário rastrando os creditos que ele já recebeu e todas as suas utilizações. Já no caso de uma transação de deposito vindo de uma fonte externa, não existe esse rastreio pois não há um crétido sendo utilizado, por isso, ao realizar um deposito é gerado um registro na tabela de `credito` assim como na transferencia e um registro na tabela de `found_debits` que indica uma entrada de credito no app vindo de uma fonte externa.
+Já no caso de uma transação de depósito vindo de uma fonte externa, não existe esse rastreio, pois não há um crédito sendo utilizado. Por isso, ao realizar um depósito, é gerado um registro na tabela de `credits`, assim como na transferência, e um registro na tabela de `fund_debits`, que indica uma entrada de crédito no app vinda de uma fonte externa.
 
-Com essa estrutura é possível garantir a consistência dos dados, rastreabilidade de uso para facilitar investigações em casos de erro e garantia contábil de que a soma de todos os créditos e debitos será sempre zero.
+Com essa estrutura, é possível garantir a consistência dos dados, a rastreabilidade de uso para facilitar investigações em casos de erro e a garantia contábil de que a soma de todos os créditos e débitos será sempre zero.
 
-Por fim, a tabela de `remaining_credits` é uma view que permite buscar apenas os saldos que ainda não foram totalmente utilizados, ou seja, que ainda estão disponíveis para serem utilizados. Ela foi adicionada para facilitar as consultas que verifiam o saldo do usuário antes de uma transferencia.
+Por fim, a tabela de `remaining_credits` é uma view que permite buscar apenas os saldos que ainda não foram totalmente utilizados, ou seja, que ainda estão disponíveis para uso. Ela foi adicionada para facilitar as consultas que verificam o saldo do usuário antes de uma transferência.
 
 ## Como Executar
 
@@ -95,9 +96,9 @@ Por fim, a tabela de `remaining_credits` é uma view que permite buscar apenas o
 
 Para executar o projeto, é necessário ter o [**Docker**](https://www.docker.com/) instalado.
 
-Abaixo estão os passos para executar o projeto
+Abaixo estão os passos para executar o projeto:
 
-#### Copiar arquivo de configuração
+#### Copiar o arquivo de configuração
 ```bash
 cp .env.example .env
 ```
@@ -107,7 +108,7 @@ cp .env.example .env
 docker-compose up -d --build
 ```
 
-#### Gerar chave de aplicação
+#### Gerar a chave da aplicação
 ```bash
 docker-compose exec app php artisan key:generate
 ```
@@ -130,7 +131,7 @@ Para executar os testes do projeto:
 docker-compose exec app php artisan test
 ```
 
-Os testes foram divididos em tres categorias: **Unitários**, **Integração** e **Arquitetura**. Os testes unitários são executados em cada classe de domínio, enquanto os testes de integração são executados em cada classe de controller. Por fim, os testes de arquitetura, tem como objetivo garantir que as regras de arquitetura do projeto serão seguidas como o esperado.
+Os testes foram divididos em três categorias: **Unitários**, **Integração** e **Arquitetura**. Os testes unitários são executados em cada classe de domínio, enquanto os testes de integração são executados em cada controller. Por fim, os testes de arquitetura têm como objetivo garantir que as regras arquiteturais do projeto sejam seguidas conforme o esperado.
 
 ## Aplicação
 
@@ -138,16 +139,16 @@ A aplicação é uma plataforma simplificada de pagamento, onde é possível rec
 
 ### Tipos de Usuários
 
-Além dos dois tipos de usuário solicitados, foram também adicionados dois novos tipos:
+Além dos dois tipos de usuário solicitados, também foram adicionados dois novos tipos:
 
-- **admin** - Usuário com permissão para realizar depositos e transferencias em qualquer conta
+- **admin** - Usuário com permissão para realizar depósitos e transferências em qualquer conta
 - **user** - Usuário com permissão para receber e transferir seus próprios créditos para outros usuários
-- **seller** - Usuário com permissão para receber transferencias de créditos de outros usuários
+- **seller** - Usuário com permissão para receber transferências de créditos de outros usuários
 - **external_found** - Usuário com permissão para depositar créditos em qualquer conta
 
-Assim como tinhamos o usuário **seller** que apenas recebe transferencias, e pode ser considerado como o ponto **final** do fluxo, optei pela criação de um outro tipo de usuário que pudesse ser considerado o ponto **inicial** do fluxo. O tipo external found representa um usuário que possui uma conta onde sao feitos apenas debitos, ou seja, uma fonte externa de onde vem o dinheiro que futuramente será transferido entre os usuários internamente no app.
+Assim como o usuário **seller**, que apenas recebe transferências e pode ser considerado o ponto **final** do fluxo, foi criada a figura de um outro tipo de usuário que pode ser considerado o ponto **inicial** do fluxo. O tipo **external_found** representa um usuário que possui uma conta onde são feitos apenas débitos, ou seja, uma fonte externa de onde vem o dinheiro que futuramente será transferido entre os usuários internamente no app.
 
-O usuário admin é o único usuário que pode realizar todas as ações em qualquer conta do sisitema, ele foi adicionado com o intuito de fazer ajustes caso necessário, mas não deve ser amplamente utilizado.
+O usuário **admin** é o único que pode realizar todas as ações em qualquer conta do sistema. Ele foi adicionado com o intuito de permitir ajustes quando necessário, mas não deve ser amplamente utilizado.
 
 ### Premissas
 
@@ -158,7 +159,7 @@ Para o desenvolvimento deste projeto, algumas premissas foram consideradas:
 - **Não é possível transferir créditos para si mesmo**
 - **Usuários do tipo lojista (seller) não podem transferir créditos**
 - **Usuários do tipo fundo externo (external_found) não podem receber créditos**
-- **Usuários do tipo comun (user) só podem transferir seus próprios créditos**
+- **Usuários do tipo comum (user) só podem transferir seus próprios créditos**
 - **Usuários só podem transferir créditos se tiverem saldo suficiente**
 - **Usuários do tipo admin (admin) podem transferir créditos de qualquer outro usuário**
 
@@ -166,14 +167,14 @@ Para o desenvolvimento deste projeto, algumas premissas foram consideradas:
 
 - **Não é possível depositar créditos para si mesmo**
 - **Apenas usuários do tipo admin (admin) e fundo externo (external_found) podem depositar**
-- **Apenas usuários do tipo admin (admin) e comum (user) podem receber depositos**
-- **Por ser um fluxo simplificado, não foi implementada nenhuma validação externa para o fluxo de deposito**
+- **Apenas usuários do tipo admin (admin) e comum (user) podem receber depósitos**
+- **Por ser um fluxo simplificado, não foi implementada nenhuma validação externa para o fluxo de depósito**
 
 ### Rotas
 
 #### Rota Principal
 
-A rota principal é a rota de transferencia de créditos entre usuários. Assim como solicitado, ela recebe os IDs do usuários e o valor a ser transferido. Para que a transação seja finalizada, é preciso que o usuário tenha saldo e que a validação externa seja aprovada.
+A rota principal é a rota de transferência de créditos entre usuários. Conforme solicitado, ela recebe os IDs dos usuários e o valor a ser transferido. Para que a transação seja finalizada, é necessário que o usuário tenha saldo e que a validação externa seja aprovada.
 
 ```bash
 POST /api/v1/transfer
@@ -224,7 +225,7 @@ Documentação da rota:
 
 http://localhost:8000/docs/api#/operations/login
 
-Para que a conta de creditos e debitos fechasse, era preciso que houvesse alguma forma de adicionar dinheiro na plataforma, antes que ele pudesse ser transferido. Para isso foi implementada a rota de deposito, assim como a rota de transferencia, ela recebe tres parametros com os IDs dos pagadores e o valor a ser depositado. Para relalizar um deposito, é preciso que o usuário pagador seja do tipo admin ou fundo externo.
+Para que a conta de créditos e débitos fechasse, era necessário haver alguma forma de adicionar dinheiro na plataforma antes que ele pudesse ser transferido. Para isso, foi implementada a rota de depósito. Assim como a rota de transferência, ela recebe três parâmetros com os IDs dos usuários e o valor a ser depositado. Para realizar um depósito, é necessário que o usuário pagador seja do tipo admin ou fundo externo.
 
 ```bash
 POST /api/v1/deposit
