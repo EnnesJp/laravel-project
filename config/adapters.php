@@ -8,16 +8,34 @@ return [
     | Notification Adapter Configuration
     |--------------------------------------------------------------------------
     |
-    | Configure which notification adapter to use and its settings.
-    | Available types: 'http', 'log', 'null'
+    | Configure notification channels and their settings.
+    | Available types: 'http', 'email', 'sms', 'mock'
+    |
+    | You can configure multiple channels, each with their own settings.
+    | Use 'default_channels' to specify which channels to use by default.
     |
     */
     'notification' => [
-        'type'   => env('NOTIFICATION_ADAPTER_TYPE', 'http'),
-        'config' => [
-            'url'     => env('NOTIFICATION_SERVICE_URL'),
-            'timeout' => env('NOTIFICATION_SERVICE_TIMEOUT', 10),
+        'channels' => [
+            'email' => [
+                'type'   => env('EMAIL_NOTIFICATION_TYPE', 'gmail'),
+                'config' => [
+                    'url'     => env('EMAIL_NOTIFICATION_URL'),
+                    'api_key' => env('EMAIL_NOTIFICATION_API_KEY'),
+                    'timeout' => env('EMAIL_NOTIFICATION_TIMEOUT', 10),
+                ],
+            ],
+            'sms' => [
+                'type'   => env('SMS_NOTIFICATION_TYPE', 'twilio'),
+                'config' => [
+                    'url'     => env('SMS_NOTIFICATION_URL'),
+                    'api_key' => env('SMS_NOTIFICATION_API_KEY'),
+                    'timeout' => env('SMS_NOTIFICATION_TIMEOUT', 10),
+                ],
+            ],
         ],
+
+        'default_channels' => array_filter(explode(',', env('NOTIFICATION_DEFAULT_CHANNELS', 'email'))),
     ],
 
     /*

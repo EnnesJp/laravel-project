@@ -8,7 +8,8 @@ use App\Domains\Transaction\Events\TransactionFailed;
 use App\Domains\Transaction\Events\TransactionSuccess;
 use App\Domains\Transaction\Listeners\InvalidateBalanceCache;
 use App\Domains\Transaction\Listeners\RefreshBalanceCache;
-use App\Domains\Transaction\Listeners\SendTransactionSuccessNotification;
+use App\Domains\Transaction\Listeners\SendTransactionSuccessEmail;
+use App\Domains\Transaction\Listeners\SendTransactionSuccessSMS;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class TransactionEventServiceProvider extends ServiceProvider
@@ -24,7 +25,8 @@ class TransactionEventServiceProvider extends ServiceProvider
         ],
         TransactionSuccess::class => [
             RefreshBalanceCache::class,
-            SendTransactionSuccessNotification::class,
+            SendTransactionSuccessEmail::class,
+            SendTransactionSuccessSMS::class,
         ],
     ];
 

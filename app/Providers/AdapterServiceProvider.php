@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Adapters\Contracts\NotificationAdapterInterface;
-use App\Adapters\Factories\NotificationAdapterFactory;
+use App\Adapters\Contracts\NotificationManagerInterface;
+use App\Adapters\Factories\NotificationManagerFactory;
 use App\Domains\Transaction\Adapters\Contracts\ValidationAdapterInterface;
 use App\Domains\Transaction\Adapters\Factories\ValidationAdapterFactory;
 use Illuminate\Support\ServiceProvider;
@@ -14,17 +14,20 @@ class AdapterServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->registerNotificationAdapter();
+        $this->registerNotificationManager();
         $this->registerValidationAdapter();
     }
 
-    private function registerNotificationAdapter(): void
+    private function registerNotificationManager(): void
     {
-        $this->app->singleton(NotificationAdapterInterface::class, function () {
-            $type   = config('adapters.notification.type', 'http');
-            $config = config('adapters.notification.config', []);
+        $this->app->singleton(NotificationManagerInterface::class, function () {
+            $channelsConfig = config('adapters.notification.channels', []);
 
-            return NotificationAdapterFactory::create($type, $config);
+            $activeChannels = array_filter($channelsConfig, function ($config) {
+                return !empty($config['config']['url'] ?? '');
+            });
+
+            return NotificationManagerFactory::create($activeChannels);
         });
     }
 
