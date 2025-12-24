@@ -69,9 +69,9 @@ class TwilioNotificationAdapter implements NotificationAdapterInterface
     private function buildSmsPayload(NotificationDTO $notification): array
     {
         $basePayload = $notification->toArray();
-        
+
         $basePayload['channel'] = 'sms';
-        
+
         return $basePayload;
     }
 }

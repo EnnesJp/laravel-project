@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domains\Transaction\Listeners;
 
-use App\Adapters\Contracts\NotificationAdapterInterface;
 use App\Adapters\Contracts\NotificationManagerInterface;
 use App\Domains\Transaction\DTOs\TransactionSuccessNotificationDTO;
 use App\Domains\Transaction\Events\TransactionSuccess;
