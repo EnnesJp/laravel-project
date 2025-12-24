@@ -17,7 +17,10 @@ class SendTransactionSuccessNotification implements ShouldQueue
 
     public int $tries         = 3;
     public int $maxExceptions = 3;
-    public array $backoff     = [1, 5, 10];
+    /**
+     * @var array<int, int>
+     */
+    public array $backoff = [1, 5, 10];
 
     public function __construct(
         private readonly NotificationAdapterInterface $notificationAdapter
