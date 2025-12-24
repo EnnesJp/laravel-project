@@ -36,9 +36,9 @@ class DepositRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'value.required' => 'The amount field is required.',
-            'value.numeric'  => 'The amount must be a valid number.',
-            'value.min'      => 'The amount must be at least 0.01.',
+            'value.required' => 'The value field is required.',
+            'value.numeric'  => 'The value must be a valid number.',
+            'value.min'      => 'The value must be at least 0.01.',
             'payee.required' => 'The payee field is required.',
             'payer.required' => 'The payer field is required.',
         ];

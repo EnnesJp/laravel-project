@@ -1,9 +1,6 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     RateLimiter::clear('api');

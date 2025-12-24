@@ -14,25 +14,6 @@ use Tests\Traits\CreatesUsers;
 
 uses(CreatesUsers::class, ClearsCache::class, AssertsEvents::class);
 
-function createUserWithBalance(UserRole $role, int $balance): \App\Domains\User\Models\User
-{
-    $user         = test()->createUser(['role' => $role->value]);
-    $externalFund = test()->createExternalFund();
-
-    $transaction = Transaction::create([
-        'payer_user_id' => $externalFund->id,
-        'payee_user_id' => $user->id,
-        'type'          => TransactionType::DEPOSIT,
-    ]);
-
-    Credit::create([
-        'transaction_id' => $transaction->id,
-        'amount'         => $balance * 100,
-    ]);
-
-    return $user;
-}
-
 beforeEach(function () {
     MockValidationHelper::bindSuccessfulMock();
     $this->clearRedisCache();
@@ -40,7 +21,7 @@ beforeEach(function () {
 });
 
 it('allows user to make transfer with sufficient balance', function () {
-    $payer = createUserWithBalance(UserRole::USER, 100);
+    $payer = $this->createUserWithBalance(UserRole::USER, 100);
     $payee = $this->createRegularUser();
 
     $response = $this->actingAs($payer)
@@ -74,7 +55,7 @@ it('allows user to make transfer with sufficient balance', function () {
 });
 
 it('allows admin to make transfer', function () {
-    $admin = createUserWithBalance(UserRole::ADMIN, 150);
+    $admin = $this->createUserWithBalance(UserRole::ADMIN, 150);
     $payee = $this->createSeller();
 
     $response = $this->actingAs($admin)
@@ -97,7 +78,7 @@ it('rejects transfer when external validation fails', function () {
     $reason = 'Suspicious transaction detected';
     MockValidationHelper::bindFailingMock($reason);
 
-    $payer = createUserWithBalance(UserRole::USER, 100);
+    $payer = $this->createUserWithBalance(UserRole::USER, 100);
     $payee = $this->createRegularUser();
 
     $response = $this->actingAs($payer)
@@ -121,7 +102,7 @@ it('rejects transfer when external validation fails', function () {
 });
 
 it('prevents seller from making transfer', function () {
-    $seller = createUserWithBalance(UserRole::SELLER, 100);
+    $seller = $this->createUserWithBalance(UserRole::SELLER, 100);
     $payee  = $this->createRegularUser();
 
     $response = $this->actingAs($seller)
@@ -175,7 +156,7 @@ it('validates required fields for transfer', function () {
 });
 
 it('validates amount is positive for transfer', function () {
-    $payer = createUserWithBalance(UserRole::USER, 100);
+    $payer = $this->createUserWithBalance(UserRole::USER, 100);
     $payee = $this->createRegularUser();
 
     $response = $this->actingAs($payer)
@@ -190,7 +171,7 @@ it('validates amount is positive for transfer', function () {
 });
 
 it('validates payer and payee are different for transfer', function () {
-    $user = createUserWithBalance(UserRole::USER, 100);
+    $user = $this->createUserWithBalance(UserRole::USER, 100);
 
     $response = $this->actingAs($user)
         ->postJson('/api/v1/transfer', [
@@ -224,7 +205,7 @@ it('validates users exist for transfer', function () {
 });
 
 it('fails with insufficient balance', function () {
-    $payer = createUserWithBalance(UserRole::USER, 10);
+    $payer = $this->createUserWithBalance(UserRole::USER, 10);
     $payee = $this->createRegularUser();
 
     $response = $this->actingAs($payer)
@@ -265,7 +246,7 @@ it('fails when payer has invalid role', function () {
 });
 
 it('fails when payee has invalid role', function () {
-    $payer        = createUserWithBalance(UserRole::USER, 100);
+    $payer        = $this->createUserWithBalance(UserRole::USER, 100);
     $externalFund = $this->createExternalFund();
 
     $response = $this->actingAs($payer)
@@ -320,8 +301,8 @@ it('handles transfer with multiple credits', function () {
 });
 
 it('prevents user role from transferring money for others', function () {
-    $user1 = createUserWithBalance(UserRole::USER, 100);
-    $user2 = createUserWithBalance(UserRole::USER, 50);
+    $user1 = $this->createUserWithBalance(UserRole::USER, 100);
+    $user2 = $this->createUserWithBalance(UserRole::USER, 50);
     $payee = $this->createRegularUser();
 
     $response = $this->actingAs($user1)
@@ -343,7 +324,7 @@ it('prevents user role from transferring money for others', function () {
 
 it('allows admin to transfer money for others', function () {
     $admin = $this->createAdmin();
-    $user  = createUserWithBalance(UserRole::USER, 100);
+    $user  = $this->createUserWithBalance(UserRole::USER, 100);
     $payee = $this->createRegularUser();
 
     $response = $this->actingAs($admin)

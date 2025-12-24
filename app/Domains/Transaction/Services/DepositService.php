@@ -31,20 +31,30 @@ class DepositService
         $this->validationService->validateDeposit($dto);
 
         return DB::transaction(function () use ($dto) {
-            $transactionDTO = new CreateTransactionDTO(
-                payerUserId: $dto->payer,
-                payeeUserId: $dto->payee,
-                type: TransactionType::DEPOSIT
-            );
-            $transaction = $this->repository->create($transactionDTO);
-
-            $this->creditService->createCredit($transaction->id, $dto->amount);
-            $this->debitService->createFundDebit($transaction->id, $dto->amount);
+            $transaction = $this->createTransferTransaction($dto, TransactionType::DEPOSIT);
+            $this->processTransferEntries($transaction, $dto);
 
             return $this->repository->findByIdWithRelations(
                 $transaction->id,
                 ['credit']
             );
         });
+    }
+
+    private function createTransferTransaction(DepositDTO $dto, TransactionType $type): Transaction
+    {
+        $transactionDTO = new CreateTransactionDTO(
+            payerUserId: $dto->payer,
+            payeeUserId: $dto->payee,
+            type: $type
+        );
+
+        return $this->repository->create($transactionDTO);
+    }
+
+    private function processTransferEntries(Transaction $transaction, DepositDTO $dto): void
+    {
+        $this->creditService->createCredit($transaction->id, $dto->amount);
+        $this->debitService->createFundDebit($transaction->id, $dto->amount);
     }
 }
