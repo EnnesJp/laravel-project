@@ -75,6 +75,9 @@ class CreateUserRequest extends FormRequest
         ]);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function validated($key = null, $default = null): array
     {
         $validated = parent::validated($key, $default);

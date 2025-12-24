@@ -57,7 +57,7 @@ class CreateUserDTO
             'name'     => $this->name,
             'email'    => $this->email->getValue(),
             'document' => $this->document->getValue(),
-            'password' => $this->password,
+            'password' => $this->password->getValue(),
             'role'     => $this->role,
         ];
     }
