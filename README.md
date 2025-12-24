@@ -2,6 +2,30 @@
 
 Este projeto tem como objetivo criar uma plataforma simples de pagamento, onde é possível receber e transferir créditos entre usuários.
 
+## Índice
+
+- [Decisões Técnicas](#decisões-técnicas)
+  - [Tech Stack](#tech-stack)
+    - [Tecnologias](#tecnologias)
+  - [Arquitetura](#arquitetura)
+    - [Domain-Driven Organization](#domain-driven-organization)
+  - [Estrutura do Banco de Dados](#estrutura-do-banco-de-dados)
+  - [Serviços Externos](#serviços-externos)
+    - [Validação](#validação)
+    - [Notificações](#notificações)
+  - [Filas](#filas)
+- [Como Executar](#como-executar)
+  - [Projeto](#projeto)
+  - [Testes](#testes)
+- [Aplicação](#aplicação)
+  - [Tipos de Usuários](#tipos-de-usuários)
+  - [Premissas](#premissas)
+    - [Transferências](#transferencias)
+    - [Depósitos](#depositos)
+  - [Rotas](#rotas)
+    - [Rota Principal](#rota-principal)
+    - [Rotas Adicionais](#rotas-adicionais)
+
 ## Decisões Técnicas
 
 ### Tech Stack
