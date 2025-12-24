@@ -12,13 +12,13 @@ Para o desenvolvimento deste exercício, a stack escolhida foi **PHP** com **Lar
 
 - **Redis** - Utilizado para gerenciamento de cache e filas  
 - **Larastan** - Análise estática de código para Laravel  
-- **PHPMD** - PHP Mess Detector para detecção de problemas no código  
-- **Pint** - Code style fixer para PHP  
-- **Telescope** - Ferramenta de debug para projetos Laravel  
-- **Horizon** - Dashboard e configuração para filas Redis  
-- **Sanctum** - Sistema de autenticação API para SPAs e aplicações móveis  
-- **Pest** - Framework de testes elegante e minimalista  
-- **Scramble** - Pacote Laravel para gerar documentação de API  
+- **PHPMD** - PHP Mess Detector para detecção de problemas no código
+- **Pint** - Code style fixer para PHP
+- **Telescope** - Ferramenta de debug para projetos Laravel
+- **Horizon** - Dashboard e configuração para filas Redis
+- **Sanctum** - Sistema de autenticação API para SPAs e aplicações móveis
+- **Pest** - Framework de testes elegante e minimalista
+- **Scramble** - Pacote Laravel para gerar documentação de API
 
 ### Arquitetura
 
@@ -72,13 +72,13 @@ A estrutura do banco de dados é simples, contendo apenas cinco tabelas e uma vi
 
 **OBS:** não estão sendo consideradas aqui as tabelas criadas pelo Laravel.
 
-- **users** - Tabela de usuários  
-- **transactions** - Tabela de transações financeiras  
-- **credits** - Tabela de créditos  
-- **debits** - Tabela de débitos  
-- **fund_debits** - Tabela de débitos de fundos externos  
+- **users** - Tabela de usuários
+- **transactions** - Tabela de transações financeiras
+- **credits** - Tabela de créditos
+- **debits** - Tabela de débitos
+- **fund_debits** - Tabela de débitos de fundos externos
 
-- **remaining_credits** - View para buscar apenas saldos que ainda não foram totalmente utilizados  
+- **remaining_credits** - View para buscar apenas saldos que ainda não foram totalmente utilizados
 
 Na tabela de `transactions` é possível ver todas as transações financeiras realizadas, tanto de transferências quanto de depósitos. Além disso, também estão presentes os IDs do usuário pagador e daquele que está recebendo o valor.
 
