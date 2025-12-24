@@ -6,6 +6,8 @@ namespace App\Http\Requests;
 
 use App\Domains\User\Enums\UserRole;
 use App\Rules\DocumentRule;
+use App\ValueObjects\Document\Factory\DocumentFactory;
+use App\ValueObjects\Email;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -34,7 +36,6 @@ class CreateUserRequest extends FormRequest
             'email' => [
                 'required',
                 'string',
-                'email',
                 'max:255',
                 'unique:users,email',
             ],
@@ -76,5 +77,15 @@ class CreateUserRequest extends FormRequest
         $this->merge([
             'document' => preg_replace('/[^0-9]/', '', $this->document ?? ''),
         ]);
+    }
+
+    public function validated($key = null, $default = null): array
+    {
+        $validated = parent::validated($key, $default);
+
+        $validated['document'] = DocumentFactory::create($validated['document']);
+        $validated['email']    = Email::fromString($validated['email']);
+
+        return $validated;
     }
 }

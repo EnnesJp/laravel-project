@@ -7,12 +7,13 @@ namespace App\Domains\User\DTOs;
 use App\Http\Requests\CreateUserRequest;
 use App\ValueObjects\Document\Base\Document;
 use App\ValueObjects\Document\Factory\DocumentFactory;
+use App\ValueObjects\Email;
 
 class CreateUserDTO
 {
     public function __construct(
         public readonly string $name,
-        public readonly string $email,
+        public readonly Email $email,
         public readonly Document $document,
         public readonly string $password,
         public readonly string $role
@@ -26,20 +27,20 @@ class CreateUserDTO
         return new self(
             name: $validated['name'],
             email: $validated['email'],
-            document: DocumentFactory::create($validated['document']),
+            document: $validated['document'],
             password: $validated['password'],
             role: $validated['role']
         );
     }
 
     /**
-     * @param array<string, string> $data
+     * @param array<string, mixed> $data
      */
     public static function fromArray(array $data): self
     {
         return new self(
             name: $data['name'],
-            email: $data['email'],
+            email: Email::fromString($data['email']),
             document: DocumentFactory::create($data['document']),
             password: $data['password'],
             role: $data['role']
@@ -53,7 +54,7 @@ class CreateUserDTO
     {
         return [
             'name'     => $this->name,
-            'email'    => $this->email,
+            'email'    => $this->email->getValue(),
             'document' => $this->document->getValue(),
             'password' => $this->password,
             'role'     => $this->role,
