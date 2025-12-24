@@ -92,6 +92,53 @@ Com essa estrutura, é possível garantir a consistência dos dados, a rastreabi
 
 Por fim, a tabela de `remaining_credits` é uma view que permite buscar apenas os saldos que ainda não foram totalmente utilizados, ou seja, que ainda estão disponíveis para uso. Ela foi adicionada para facilitar as consultas que verificam o saldo do usuário antes de uma transferência.
 
+### Serviços Externos
+
+Para a configuração dos serviços externos, foi utilizada uma estratégia de factories, onde o serviço desejado é configurado pelo `.env` e a factory monta o adapter apropriado. Essa técnica foi escolhida, pois permite que serviços externos sejam plugados ou alterados de forma simples e fácil, apenas com a alteração de uma variável de ambiente.
+
+#### Validação
+
+No app construído, existem dois serviços externos principais. O primeiro deles é o serviço de validação da transferência. Na factory desenvolvida, existem duas implementações de adapters para esse caso: `http`, que realiza a chamada para a URL configurada no `.env`, e `mock`, que é apenas uma simulação do serviço externo, utilizada principalmente para testes.
+
+Em caso de uso do tipo `mock`, ainda é possível definir pelo `.env` o comportamento desejado de retorno, se será erro ou sucesso, o que ajuda a tornar o ambiente de testes de feature mais previsível.
+
+```
+VALIDATION_ADAPTER_TYPE=http                                    # http | mock
+EXTERNAL_VALIDATION_SERVICE_URL=https://util.devi.tools/api/v2  # utilizado em caso do type ser http
+EXTERNAL_VALIDATION_TIMEOUT=10
+VALIDATION_MOCK_SHOULD_PASS=                                    # utilizado em caso do type ser mock
+```
+
+#### Notificações
+
+O outro serviço externo utilizado é o de notificações, que permite o envio de notificações para os usuários. Esse serviço foi separado em duas partes: notificações por e-mail e por SMS. Essa divisão permite que sejam configurados diferentes provedores para cada tipo de notificação, caso necessário.
+
+Para este caso, é possível definir os provedores de e-mail e SMS via `.env`, assim como quais canais de notificação desejamos utilizar. Dessa forma, caso no futuro seja necessário adicionar um novo canal de notificação, não será preciso alterar o funcionamento dos canais atuais.
+
+Assim como no exemplo de validação, a opção de mock também está disponível, permitindo testar o funcionamento da aplicação sem impacto de serviços externos.
+
+```
+EMAIL_NOTIFICATION_TYPE=gmail                          # gmail | mock
+EMAIL_NOTIFICATION_URL=https://util.devi.tools/api/v1  # utilização em caso do type ser gmail
+EMAIL_NOTIFICATION_API_KEY=your_email_api_key_here     # permite indicação de api key caso necessário
+EMAIL_NOTIFICATION_TIMEOUT=15
+
+SMS_NOTIFICATION_TYPE=twilio                           # twilio | mock
+SMS_NOTIFICATION_URL=https://util.devi.tools/api/v1    # utilização em caso do type ser twilio
+SMS_NOTIFICATION_API_KEY=your_sms_api_key_here         # permite indicação de api key caso necessário
+SMS_NOTIFICATION_TIMEOUT=10
+
+NOTIFICATION_DEFAULT_CHANNELS=email,sms
+```
+
+**OBS:** o app desenvolvido não possui integração real com **Gmail** ou **Twilio**; esses foram apenas nomes utilizados para deixar mais claro o contexto interno da aplicação.
+
+### Filas
+
+Para a implementação e configuração das filas, foi utilizado o **Redis**. O projeto utiliza o **Horizon** para gerenciar as filas e o **Telescope** para visualizá-las em tempo real.
+
+Por utilizar a solução nativa do Laravel para execução de filas, o projeto também possui uma estratégia simples para identificar e armazenar jobs mal-sucedidos. Os jobs que excedem o limite de tentativas configurado são salvos na tabela `failed_jobs` do banco de dados e podem ser executados novamente de forma manual, caso necessário.
+
 ## Como Executar
 
 ### Projeto
@@ -174,7 +221,7 @@ Para o desenvolvimento deste projeto, algumas premissas foram consideradas:
 
 ### Rotas
 
-Aqui estão as rotas disponíveis na aplicação, todas elas estão cobertas por um rate limiter para evitar possíveis ataques maliciosos ao app:
+Aqui estão as rotas disponíveis na aplicação. Todas elas estão cobertas por um rate limiter para evitar possíveis ataques maliciosos ao app. Além disso, foi utilizado o **Telescope** como ferramenta de observabilidade, permitindo a visualização em tempo real das chamadas de API. O Telescope não é recomendado para utilização em produção, mas, para esse projeto, cumpre seu papel. É recomendado que, em caso de evolução do app, sejam adotadas ferramentas mais robustas de observabilidade.
 
 #### Rota Principal
 
