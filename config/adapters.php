@@ -11,8 +11,6 @@ return [
     | Configure notification channels and their settings.
     | Available types: 'http', 'email', 'sms', 'mock'
     |
-    | You can configure multiple channels, each with their own settings.
-    | Use 'default_channels' to specify which channels to use by default.
     |
     */
     'notification' => [
@@ -34,8 +32,6 @@ return [
                 ],
             ],
         ],
-
-        'default_channels' => array_filter(explode(',', env('NOTIFICATION_DEFAULT_CHANNELS', 'email'))),
     ],
 
     /*

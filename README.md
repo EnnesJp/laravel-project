@@ -86,11 +86,11 @@ app/
 
 Além da separação de responsabilidades, essa arquitetura também traz outros benefícios para a aplicação. O primeiro deles é a maior testabilidade e facilidade de manutenção: a separação clara de responsabilidades permite que cada trecho seja testado de forma unitária e independente, e a estrutura simples possibilita um fácil entendimento da responsabilidade de cada parte do código, permitindo que novos desenvolvedores realizem a manutenção sem dificuldades.
 
-Outro ponto importante a ser ressaltado é a escalabilidade. A arquitetura desenvolvida permite a adição de novas funcionalidades sem gerar impactos nas já existentes, além de manter o sistema aberto para extensão.
+Outro ponto importante a ser ressaltado é a escalabilidade. A arquitetura desenvolvida permite a adição de novas funcionalidades sem gerar impactos nas já existentes, além de manter o sistema aberto para extensão. Como exemplo, é possível adicionar um novo canal de notificaçãp, que atualmente aceita apenas email e sms, mas que pode ser facilmente expandida para WhatsApp ou outro tipo de canal, caso seja necessário no futuro.
 
 ### Estrutura do Banco de Dados
 
-O banco de dados utilizado foi o **MySQL**. O projeto utiliza o **Eloquent ORM** para realizar as operações de CRUD no banco de dados, além de utilizar **Migrations** para gerenciar as alterações no banco de dados.
+O banco de dados utilizado foi o **MySQL**. O projeto utiliza o **Eloquent ORM** para realizar as operações no banco de dados, além de utilizar **Migrations** para gerenciar as alterações no banco de dados.
 
 A estrutura do banco de dados é simples, contendo apenas cinco tabelas e uma view para facilitar a busca de dados específicos:
 
@@ -135,9 +135,7 @@ VALIDATION_MOCK_SHOULD_PASS=                                    # utilizado em c
 
 #### Notificações
 
-O outro serviço externo utilizado é o de notificações, que permite o envio de notificações para os usuários. Esse serviço foi separado em duas partes: notificações por e-mail e por SMS. Essa divisão permite que sejam configurados diferentes provedores para cada tipo de notificação, caso necessário.
-
-Para este caso, é possível definir os provedores de e-mail e SMS via `.env`, assim como quais canais de notificação desejamos utilizar. Dessa forma, caso no futuro seja necessário adicionar um novo canal de notificação, não será preciso alterar o funcionamento dos canais atuais.
+O outro serviço externo utilizado é o de notificações, que permite o envio de notificações para os usuários. Esse serviço foi separado em duas partes: notificações por **E-mail** e por **SMS**. Essa divisão permite que sejam configurados diferentes provedores para cada tipo de notificação, caso necessário.
 
 Assim como no exemplo de validação, a opção de mock também está disponível, permitindo testar o funcionamento da aplicação sem impacto de serviços externos.
 
@@ -151,11 +149,9 @@ SMS_NOTIFICATION_TYPE=twilio                           # twilio | mock
 SMS_NOTIFICATION_URL=https://util.devi.tools/api/v1    # utilização em caso do type ser twilio
 SMS_NOTIFICATION_API_KEY=your_sms_api_key_here         # permite indicação de api key caso necessário
 SMS_NOTIFICATION_TIMEOUT=10
-
-NOTIFICATION_DEFAULT_CHANNELS=email,sms
 ```
 
-**OBS:** o app desenvolvido não possui integração real com **Gmail** ou **Twilio**; esses foram apenas nomes utilizados para deixar mais claro o contexto interno da aplicação.
+**OBS:** o app desenvolvido não possui integração real com **Gmail** ou **Twilio**, esses foram apenas nomes utilizados para deixar mais claro o contexto interno da aplicação.
 
 ### Filas
 
